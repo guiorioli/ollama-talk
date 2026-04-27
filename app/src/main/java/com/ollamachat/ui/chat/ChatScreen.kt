@@ -1,6 +1,5 @@
 package com.ollamachat.ui.chat
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Mic
@@ -63,8 +63,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.text.input.ImeAction
@@ -97,6 +102,12 @@ fun ChatScreen(
         } else {
             viewModel.onPermissionDenied()
         }
+    }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.toString()?.let { viewModel.onImagePicked(it) }
     }
 
     LaunchedEffect(state.messages.size) {
@@ -199,6 +210,7 @@ fun ChatScreen(
                     inputText = state.inputText,
                     isLoading = state.isLoading,
                     isListening = state.isListening,
+                    pendingImageUri = state.pendingImageUri,
                     onInputChanged = viewModel::onInputChanged,
                     onSend = viewModel::sendMessage,
                     onMicClick = {
@@ -212,7 +224,9 @@ fun ChatScreen(
                         } else {
                             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                         }
-                    }
+                    },
+                    onAttachClick = { imagePickerLauncher.launch("image/*") },
+                    onClearImage = viewModel::clearPendingImage
                 )
             }
         ) { padding ->
@@ -362,6 +376,23 @@ private fun MessageBubble(
                         )
                     }
                 } else {
+                    if (message.hasImage) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Image,
+                                contentDescription = "Has image",
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Image attached",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                     MarkdownText(
                         markdown = message.content,
                         style = MaterialTheme.typography.bodyLarge
@@ -480,62 +511,114 @@ private fun ChatInputBar(
     inputText: String,
     isLoading: Boolean,
     isListening: Boolean,
+    pendingImageUri: String?,
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit,
-    onMicClick: () -> Unit
+    onMicClick: () -> Unit,
+    onAttachClick: () -> Unit,
+    onClearImage: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = inputText,
-            onValueChange = onInputChanged,
-            modifier = Modifier.weight(1f),
-            placeholder = { Text("Type your message…") },
-            enabled = !isLoading,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-            keyboardActions = KeyboardActions(onSend = { if (!isLoading) onSend() }),
-            singleLine = true,
-            shape = RoundedCornerShape(24.dp)
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        IconButton(
-            onClick = onMicClick,
-            enabled = !isLoading
-        ) {
-            if (isListening) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        Icons.Default.Close,
-                        contentDescription = "Cancel",
-                        tint = MaterialTheme.colorScheme.error
+    Column(modifier = Modifier.padding(8.dp)) {
+        if (pendingImageUri != null) {
+            val context = LocalContext.current
+            val bitmap = remember(pendingImageUri) {
+                var result: android.graphics.Bitmap? = null
+                try {
+                    val uri = Uri.parse(pendingImageUri)
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    result = inputStream?.use { BitmapFactory.decodeStream(it) }
+                } catch (_: Exception) { }
+                result
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Attached image",
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(end = 8.dp),
+                        contentScale = ContentScale.Crop
                     )
                 }
-            } else {
+                IconButton(
+                    onClick = onClearImage,
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Remove image",
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onAttachClick,
+                enabled = !isLoading
+            ) {
                 Icon(
-                    Icons.Default.Mic,
-                    contentDescription = "Speak",
+                    Icons.Default.Add,
+                    contentDescription = "Attach image",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-        }
-        IconButton(
-            onClick = onSend,
-            enabled = inputText.isNotBlank() && !isLoading
-        ) {
-            Icon(
-                Icons.Default.Send,
-                contentDescription = "Send",
-                tint = if (inputText.isNotBlank() && !isLoading)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            OutlinedTextField(
+                value = inputText,
+                onValueChange = onInputChanged,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("Type your message…") },
+                enabled = !isLoading,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(onSend = { if (!isLoading) onSend() }),
+                singleLine = true,
+                shape = RoundedCornerShape(24.dp)
             )
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(
+                onClick = onMicClick,
+                enabled = !isLoading
+            ) {
+                if (isListening) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Cancel",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                } else {
+                    Icon(
+                        Icons.Default.Mic,
+                        contentDescription = "Speak",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            IconButton(
+                onClick = onSend,
+                enabled = (inputText.isNotBlank() || pendingImageUri != null) && !isLoading
+            ) {
+                Icon(
+                    Icons.Default.Send,
+                    contentDescription = "Send",
+                    tint = if ((inputText.isNotBlank() || pendingImageUri != null) && !isLoading)
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                )
+            }
         }
     }
 }

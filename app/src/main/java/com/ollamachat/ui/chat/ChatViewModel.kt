@@ -12,6 +12,7 @@ import com.ollamachat.data.local.ConversationManager
 import com.ollamachat.data.local.PreferencesManager
 import com.ollamachat.data.local.StoredMessage
 import com.ollamachat.data.local.TtsLanguage
+import com.ollamachat.util.ImageUtils
 import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,8 @@ data class ChatUiMessage(
     val id: Long,
     val role: String,
     val content: String,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val hasImage: Boolean = false
 )
 
 data class ChatUiState(
@@ -38,7 +40,8 @@ data class ChatUiState(
     val error: String? = null,
     val hasApiKey: Boolean = false,
     val conversations: List<ConversationIndexEntry> = emptyList(),
-    val currentConversationId: String? = null
+    val currentConversationId: String? = null,
+    val pendingImageUri: String? = null
 )
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
@@ -93,9 +96,18 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _state.value = _state.value.copy(inputText = text)
     }
 
+    fun onImagePicked(uri: String) {
+        _state.value = _state.value.copy(pendingImageUri = uri)
+    }
+
+    fun clearPendingImage() {
+        _state.value = _state.value.copy(pendingImageUri = null)
+    }
+
     fun sendMessage() {
         val text = _state.value.inputText.trim()
-        if (text.isBlank()) return
+        val imageUri = _state.value.pendingImageUri
+        if (text.isBlank() && imageUri == null) return
 
         if (_state.value.currentConversationId == null) {
             _state.value = _state.value.copy(
@@ -112,7 +124,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         val userMessage = ChatUiMessage(
             id = messageIdCounter++,
             role = "user",
-            content = text
+            content = text,
+            hasImage = imageUri != null
         )
 
         val loadingMessage = ChatUiMessage(
@@ -125,15 +138,30 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _state.value = _state.value.copy(
             messages = _state.value.messages + userMessage + loadingMessage,
             inputText = "",
+            pendingImageUri = null,
             isLoading = true,
             error = null
         )
 
-        val chatMessages = (_state.value.messages + userMessage)
-            .filter { !it.isLoading }
-            .map { ChatMessage(role = it.role, content = it.content) }
-
         viewModelScope.launch {
+            val base64Image = if (imageUri != null) {
+                withContext(Dispatchers.IO) {
+                    val uri = android.net.Uri.parse(imageUri)
+                    val app = getApplication<Application>()
+                    ImageUtils.compressAndEncode(app, uri)
+                }
+            } else null
+
+            val chatMessages = (_state.value.messages + userMessage)
+                .filter { !it.isLoading }
+                .map { msg ->
+                    if (msg.hasImage && base64Image != null) {
+                        ChatMessage(role = msg.role, content = msg.content, images = listOf(base64Image))
+                    } else {
+                        ChatMessage(role = msg.role, content = msg.content)
+                    }
+                }
+
             val result = withContext(Dispatchers.IO) {
                 apiService.chat(prefs.selectedModel, chatMessages, apiKey)
             }
@@ -233,7 +261,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             isSpeaking = false,
             speakingMessageId = null,
             error = null,
-            currentConversationId = null
+            currentConversationId = null,
+            pendingImageUri = null
         )
         messageIdCounter = 0L
     }
@@ -257,8 +286,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         val conversation = conversationManager.loadConversation(id) ?: return
         textToSpeech.stop()
         messageIdCounter = 0L
-        val messages = conversation.messages.filter { it.content.isNotBlank() }.map {
-            ChatUiMessage(id = messageIdCounter++, role = it.role, content = it.content)
+        val messages = conversation.messages.filter { it.content.isNotBlank() }.map { stored ->
+            val hasImage = stored.content.startsWith("[Image]")
+            val cleanContent = if (hasImage) {
+                stored.content.removePrefix("[Image] ").removePrefix("[Image]")
+            } else stored.content
+            ChatUiMessage(id = messageIdCounter++, role = stored.role, content = cleanContent, hasImage = hasImage)
         }
         _state.value = _state.value.copy(
             messages = messages,
@@ -273,7 +306,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun saveCurrentConversation() {
         val messages = _state.value.messages
-            .filter { !it.isLoading && it.content.isNotBlank() }
+            .filter { !it.isLoading && (it.content.isNotBlank() || it.hasImage) }
         if (messages.isEmpty()) return
 
         val id = _state.value.currentConversationId
@@ -281,7 +314,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
         conversationManager.saveConversation(
             id = id,
-            messages = messages.map { StoredMessage(role = it.role, content = it.content) },
+            messages = messages.map {
+                val storedContent = if (it.hasImage) {
+                    if (it.content.isBlank()) "[Image]" else "[Image] ${it.content}"
+                } else it.content
+                StoredMessage(role = it.role, content = storedContent)
+            },
             model = prefs.selectedModel
         )
         _state.value = _state.value.copy(
