@@ -87,7 +87,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
         val apiKey = prefs.apiKey
         if (apiKey.isBlank()) {
-            _state.value = _state.value.copy(error = "Configure sua API Key nas Configurações")
+            _state.value = _state.value.copy(error = "Set your API Key in Settings")
             return
         }
 
@@ -145,7 +145,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     _state.value = _state.value.copy(
                         messages = updatedMessages,
                         isLoading = false,
-                        error = error.message ?: "Erro ao enviar mensagem"
+                        error = error.message ?: "Error sending message"
                     )
                 }
             )
@@ -181,7 +181,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onPermissionDenied() {
         _state.value = _state.value.copy(
-            error = "Permissão do microfone necessária para usar entrada de voz"
+            error = "Microphone permission is required to use voice input"
         )
     }
 

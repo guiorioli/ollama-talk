@@ -90,16 +90,16 @@ fun ChatScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Limpar chat?") },
-            text = { Text("Todas as mensagens serão removidas.") },
+            title = { Text("Clear chat?") },
+            text = { Text("All messages will be removed.") },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearChat()
                     showClearDialog = false
-                }) { Text("Limpar") }
+                }) { Text("Clear") }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("Cancelar") }
+                TextButton(onClick = { showClearDialog = false }) { Text("Cancel") }
             }
         )
     }
@@ -118,20 +118,20 @@ fun ChatScreen(
                         IconButton(onClick = viewModel::stopSpeaking) {
                             Icon(
                                 Icons.Default.Stop,
-                                contentDescription = "Parar leitura",
+                                contentDescription = "Stop reading",
                                 tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
                     if (state.messages.isNotEmpty()) {
                         IconButton(onClick = { showClearDialog = true }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Limpar chat")
+                            Icon(Icons.Default.Clear, contentDescription = "Clear chat")
                         }
                     }
                     IconButton(onClick = { viewModel.toggleAutoSpeak() }) {
                         Icon(
                             if (state.isAutoSpeak) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                            contentDescription = if (state.isAutoSpeak) "Desativar leitura automática" else "Ativar leitura automática",
+                            contentDescription = if (state.isAutoSpeak) "Disable auto-read" else "Enable auto-read",
                             tint = if (state.isAutoSpeak)
                                 MaterialTheme.colorScheme.onPrimary
                             else
@@ -139,7 +139,7 @@ fun ChatScreen(
                         )
                     }
                     IconButton(onClick = onOpenSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Configurações")
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 }
             )
@@ -195,7 +195,7 @@ fun ChatScreen(
             state.error?.let { error ->
                 AlertDialog(
                     onDismissRequest = viewModel::clearError,
-                    title = { Text("Aviso") },
+                    title = { Text("Notice") },
                     text = { Text(error) },
                     confirmButton = {
                         TextButton(onClick = viewModel::clearError) { Text("OK") }
@@ -224,7 +224,7 @@ private fun EmptyChatHint() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Digite ou fale sua mensagem para começar",
+                text = "Type or speak a message to start",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -247,18 +247,18 @@ private fun NoApiKeyOverlay(onOpenSettings: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "API Key não configurada",
+                    text = "API Key not set",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Vá para Configurações e insira sua API Key do Ollama Cloud.",
+                    text = "Go to Settings and enter your Ollama Cloud API Key.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = onOpenSettings) {
-                    Text("Ir para Configurações")
+                    Text("Go to Settings")
                 }
             }
         }
@@ -305,7 +305,7 @@ private fun MessageBubble(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Pensando…",
+                            text = "Thinking…",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -323,7 +323,7 @@ private fun MessageBubble(
                         ) {
                             Icon(
                                 if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
-                                contentDescription = if (isSpeaking) "Parar" else "Ouvir resposta",
+                                contentDescription = if (isSpeaking) "Stop" else "Listen",
                                 modifier = Modifier.size(18.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -354,7 +354,7 @@ private fun ChatInputBar(
             value = inputText,
             onValueChange = onInputChanged,
             modifier = Modifier.weight(1f),
-            placeholder = { Text("Digite sua mensagem…") },
+            placeholder = { Text("Type your message…") },
             enabled = !isLoading,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
             keyboardActions = KeyboardActions(onSend = { if (!isLoading) onSend() }),
@@ -372,14 +372,14 @@ private fun ChatInputBar(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Cancelar",
+                        contentDescription = "Cancel",
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
             } else {
                 Icon(
                     Icons.Default.Mic,
-                    contentDescription = "Falar",
+                    contentDescription = "Speak",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -390,7 +390,7 @@ private fun ChatInputBar(
         ) {
             Icon(
                 Icons.Default.Send,
-                contentDescription = "Enviar",
+                contentDescription = "Send",
                 tint = if (inputText.isNotBlank() && !isLoading)
                     MaterialTheme.colorScheme.primary
                 else

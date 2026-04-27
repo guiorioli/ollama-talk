@@ -31,12 +31,12 @@ class SpeechRecognizerManager(context: Context) {
         override fun onError(error: Int) {
             onListeningChange?.invoke(false)
             val message = when (error) {
-                SpeechRecognizer.ERROR_NETWORK -> "Erro de rede"
-                SpeechRecognizer.ERROR_AUDIO -> "Erro de áudio"
-                SpeechRecognizer.ERROR_NO_MATCH -> "Não entendi o que foi dito"
-                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Tempo de fala esgotado"
-                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Permissão de microfone não concedida"
-                else -> "Erro no reconhecimento de voz ($error)"
+                SpeechRecognizer.ERROR_NETWORK -> "Network error"
+                SpeechRecognizer.ERROR_AUDIO -> "Audio error"
+                SpeechRecognizer.ERROR_NO_MATCH -> "Could not understand"
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Speech timed out"
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission not granted"
+                else -> "Speech recognition error ($error)"
             }
             onError?.invoke(message)
         }
@@ -47,7 +47,7 @@ class SpeechRecognizerManager(context: Context) {
             if (!text.isNullOrBlank()) {
                 onResult?.invoke(text)
             } else {
-                onError?.invoke("Não foi possível reconhecer a fala")
+                onError?.invoke("Could not recognize speech")
             }
         }
 
@@ -67,8 +67,8 @@ class SpeechRecognizerManager(context: Context) {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-BR")
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Fale sua mensagem")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your message")
         }
         speechRecognizer.startListening(intent)
     }

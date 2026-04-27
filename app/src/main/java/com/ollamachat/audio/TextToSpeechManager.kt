@@ -15,10 +15,10 @@ class TextToSpeechManager(context: Context) {
 
     private val initListener = TextToSpeech.OnInitListener { status ->
         if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale("pt", "BR")
+            tts?.language = Locale("en", "US")
             isInitialized = true
         } else {
-            onError?.invoke("Erro ao inicializar sintetizador de voz")
+            onError?.invoke("Error initializing speech synthesizer")
         }
     }
 
@@ -30,14 +30,14 @@ class TextToSpeechManager(context: Context) {
                 onDone?.invoke()
             }
             override fun onError(uttId: String?) {
-                onError?.invoke("Erro ao reproduzir áudio")
+                onError?.invoke("Error playing audio")
             }
         })
     }
 
     fun speak(text: String) {
         if (!isInitialized) {
-            onError?.invoke("Sintetizador de voz não está pronto")
+            onError?.invoke("Speech synthesizer not ready")
             return
         }
         tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)

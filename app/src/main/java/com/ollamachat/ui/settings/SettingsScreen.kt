@@ -84,12 +84,12 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurações") },
+                title = { Text("Settings") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar"
+                            contentDescription = "Back"
                         )
                     }
                 },
@@ -118,7 +118,7 @@ fun SettingsScreen(
                 value = state.apiKey,
                 onValueChange = viewModel::onApiKeyChanged,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Cole sua API Key aqui") },
+                placeholder = { Text("Paste your API Key here") },
                 visualTransformation = if (showKey)
                     VisualTransformation.None
                 else
@@ -129,7 +129,7 @@ fun SettingsScreen(
                         Icon(
                             if (showKey) Icons.Default.VisibilityOff
                             else Icons.Default.Visibility,
-                            contentDescription = if (showKey) "Ocultar" else "Exibir"
+                            contentDescription = if (showKey) "Hide" else "Show"
                         )
                     }
                 }
@@ -144,7 +144,7 @@ fun SettingsScreen(
             ) {
                 Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Obter API Key no site")
+                Text("Get API Key on website")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -159,7 +159,7 @@ fun SettingsScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(modifier = Modifier.height(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Carregando modelos…")
+                    Text("Loading models…")
                 }
             }
 
@@ -175,7 +175,7 @@ fun SettingsScreen(
             OutlinedButton(onClick = viewModel::loadModels) {
                 Icon(Icons.Default.Refresh, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Recarregar lista de modelos")
+                Text("Reload model list")
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -194,13 +194,13 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text("Salvar")
+                Text("Save")
             }
 
             if (!state.isSaved) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Modelo padrão: gemma3:27b-cloud",
+                    text = "Default model: gemma3:27b-cloud",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -68,7 +68,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 onFailure = { error ->
                     _state.value = _state.value.copy(
                         isLoadingModels = false,
-                        error = "Erro ao carregar modelos: ${error.message}"
+                        error = "Error loading models: ${error.message}"
                     )
                 }
             )
@@ -78,7 +78,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun save() {
         val apiKey = _state.value.apiKey.trim()
         if (apiKey.isBlank()) {
-            _state.value = _state.value.copy(error = "Informe uma API Key")
+            _state.value = _state.value.copy(error = "Enter an API Key")
             return
         }
 
@@ -94,13 +94,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 prefs.selectedModel = _state.value.selectedModel
                 _state.value = _state.value.copy(
                     isSaving = false,
-                    successMessage = "Configurações salvas",
+                    successMessage = "Settings saved",
                     isSaved = true
                 )
             } else {
                 _state.value = _state.value.copy(
                     isSaving = false,
-                    error = "API Key inválida. Verifique e tente novamente."
+                    error = "Invalid API Key. Check and try again."
                 )
             }
         }
