@@ -10,6 +10,7 @@ Android app for chatting with Ollama Cloud models, with voice support.
 | UI | Jetpack Compose |
 | HTTP | OkHttp |
 | JSON | Gson |
+| Markdown | compose-markdown (JitPack) |
 | Voice (input) | SpeechRecognizer (Android SDK) |
 | Voice (output) | TextToSpeech (Android SDK) |
 | Storage | SharedPreferences |
@@ -31,16 +32,19 @@ app/src/main/java/com/ollamachat/
 │   │   ├── ChatRequest.kt
 │   │   └── ChatResponse.kt
 │   └── local/
-│       └── PreferencesManager.kt
+│       ├── PreferencesManager.kt
+│       └── TtsLanguage.kt
 ├── navigation/
-│   └── AppNavigation.kt
-└── ui/
-    ├── chat/
-    │   ├── ChatScreen.kt
-    │   └── ChatViewModel.kt
-    └── settings/
-        ├── SettingsScreen.kt
-        └── SettingsViewModel.kt
+│   └── NavGraph.kt
+├── ui/
+│   ├── chat/
+│   │   ├── ChatScreen.kt
+│   │   └── ChatViewModel.kt
+│   └── settings/
+│       ├── SettingsScreen.kt
+│       └── SettingsViewModel.kt
+└── util/
+    └── MarkdownUtils.kt
 ```
 
 ## Pre-built APK
@@ -78,5 +82,8 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 1. Get an API Key at https://ollama.com/settings/keys
 2. Enter the key in **Settings** within the app
-3. Select your desired cloud model
+3. Select your desired cloud model and TTS language
 4. Start chatting or use the voice button
+5. Tap the speaker icon on any response to hear it read aloud
+
+> The latest pre-built APK is at `dist/ollama-talk.apk`.
