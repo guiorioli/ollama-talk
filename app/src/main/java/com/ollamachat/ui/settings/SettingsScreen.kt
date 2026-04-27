@@ -75,6 +75,8 @@ fun SettingsScreen(
             onKeySaved()
         }
     }
+
+    LaunchedEffect(state.error) {
         state.error?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearMessages()
