@@ -48,8 +48,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -59,6 +65,17 @@ fun ChatScreen(
     val state by viewModel.state.collectAsState()
     val listState = rememberLazyListState()
     var showClearDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            viewModel.startListening()
+        } else {
+            viewModel.onPermissionDenied()
+        }
+    }
 
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
@@ -98,6 +115,16 @@ fun ChatScreen(
                             Icon(Icons.Default.Clear, contentDescription = "Limpar chat")
                         }
                     }
+                    IconButton(onClick = { viewModel.toggleAutoSpeak() }) {
+                        Icon(
+                            Icons.Default.VolumeUp,
+                            contentDescription = if (state.isAutoSpeak) "Desativar leitura automática" else "Ativar leitura automática",
+                            tint = if (state.isAutoSpeak)
+                                MaterialTheme.colorScheme.onPrimary
+                            else
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+                        )
+                    }
                     IconButton(onClick = onOpenSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Configurações")
                     }
@@ -112,8 +139,16 @@ fun ChatScreen(
                 onInputChanged = viewModel::onInputChanged,
                 onSend = viewModel::sendMessage,
                 onMicClick = {
-                    if (state.isListening) viewModel.stopListening()
-                    else viewModel.startListening()
+                    if (state.isListening) {
+                        viewModel.stopListening()
+                    } else if (ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.RECORD_AUDIO
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        viewModel.startListening()
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
                 }
             )
         }

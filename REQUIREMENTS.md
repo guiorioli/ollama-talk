@@ -24,6 +24,7 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 
 ### FR4 — Voice input
 - "Speak" button triggers the native Android SpeechRecognizer
+- Runtime permission request for RECORD_AUDIO (Android 6.0+)
 - Transcription fills the message text field
 - Visual feedback while recording
 
@@ -34,6 +35,12 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 ### FR6 — Navigation
 - Main screen: Chat
 - Settings screen: API Key, default model
+
+### FR7 — Auto-speak toggle
+- Speaker icon in the top bar to toggle automatic TTS playback of responses
+- When enabled, responses are read aloud immediately after receiving
+- When disabled, responses can still be played manually per-message
+- Visual indicator (highlighted/faded icon) showing toggle state
 
 ## Non-Functional Requirements
 

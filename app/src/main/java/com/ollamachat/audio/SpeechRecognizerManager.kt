@@ -35,6 +35,7 @@ class SpeechRecognizerManager(context: Context) {
                 SpeechRecognizer.ERROR_AUDIO -> "Erro de áudio"
                 SpeechRecognizer.ERROR_NO_MATCH -> "Não entendi o que foi dito"
                 SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Tempo de fala esgotado"
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Permissão de microfone não concedida"
                 else -> "Erro no reconhecimento de voz ($error)"
             }
             onError?.invoke(message)

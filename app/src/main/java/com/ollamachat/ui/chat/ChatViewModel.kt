@@ -28,6 +28,7 @@ data class ChatUiState(
     val isLoading: Boolean = false,
     val isListening: Boolean = false,
     val isSpeaking: Boolean = false,
+    val isAutoSpeak: Boolean = false,
     val error: String? = null,
     val hasApiKey: Boolean = false
 )
@@ -118,10 +119,11 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
             result.fold(
                 onSuccess = { response ->
+                    val content = response.message.content
                     val updatedMessages = _state.value.messages.map { msg ->
                         if (msg.isLoading) {
                             msg.copy(
-                                content = response.message.content,
+                                content = content,
                                 isLoading = false
                             )
                         } else msg
@@ -130,6 +132,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         messages = updatedMessages,
                         isLoading = false
                     )
+                    if (_state.value.isAutoSpeak) {
+                        speakMessage(content)
+                    }
                 },
                 onFailure = { error ->
                     val updatedMessages = _state.value.messages.filter { !it.isLoading }
@@ -159,6 +164,16 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun stopSpeaking() {
         textToSpeech.stop()
         _state.value = _state.value.copy(isSpeaking = false)
+    }
+
+    fun toggleAutoSpeak() {
+        _state.value = _state.value.copy(isAutoSpeak = !_state.value.isAutoSpeak)
+    }
+
+    fun onPermissionDenied() {
+        _state.value = _state.value.copy(
+            error = "Permissão do microfone necessária para usar entrada de voz"
+        )
     }
 
     fun clearError() {
