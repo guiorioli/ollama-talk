@@ -20,9 +20,12 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -53,6 +56,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
+import com.github.jeziellago.compose.markdown.MarkdownText
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -110,6 +114,15 @@ fun ChatScreen(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 actions = {
+                    if (state.isSpeaking) {
+                        IconButton(onClick = viewModel::stopSpeaking) {
+                            Icon(
+                                Icons.Default.Stop,
+                                contentDescription = "Parar leitura",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
                     if (state.messages.isNotEmpty()) {
                         IconButton(onClick = { showClearDialog = true }) {
                             Icon(Icons.Default.Clear, contentDescription = "Limpar chat")
@@ -117,7 +130,7 @@ fun ChatScreen(
                     }
                     IconButton(onClick = { viewModel.toggleAutoSpeak() }) {
                         Icon(
-                            Icons.Default.VolumeUp,
+                            if (state.isAutoSpeak) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
                             contentDescription = if (state.isAutoSpeak) "Desativar leitura automática" else "Ativar leitura automática",
                             tint = if (state.isAutoSpeak)
                                 MaterialTheme.colorScheme.onPrimary
@@ -140,7 +153,7 @@ fun ChatScreen(
                 onSend = viewModel::sendMessage,
                 onMicClick = {
                     if (state.isListening) {
-                        viewModel.stopListening()
+                        viewModel.cancelVoiceInput()
                     } else if (ContextCompat.checkSelfPermission(
                             context, Manifest.permission.RECORD_AUDIO
                         ) == PackageManager.PERMISSION_GRANTED
@@ -171,8 +184,8 @@ fun ChatScreen(
                     items(state.messages, key = { it.id }) { message ->
                         MessageBubble(
                             message = message,
-                            isSpeaking = state.isSpeaking,
-                            onSpeak = { viewModel.speakMessage(message.content) },
+                            isSpeaking = state.speakingMessageId == message.id,
+                            onSpeak = { viewModel.speakMessage(message.content, message.id) },
                             onStopSpeaking = viewModel::stopSpeaking
                         )
                     }
@@ -298,8 +311,8 @@ private fun MessageBubble(
                         )
                     }
                 } else {
-                    Text(
-                        text = message.content,
+                    MarkdownText(
+                        markdown = message.content,
                         style = MaterialTheme.typography.bodyLarge
                     )
                     if (!isUser && message.content.isNotBlank()) {
@@ -309,8 +322,8 @@ private fun MessageBubble(
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
-                                Icons.Default.VolumeUp,
-                                contentDescription = "Ouvir resposta",
+                                if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
+                                contentDescription = if (isSpeaking) "Parar" else "Ouvir resposta",
                                 modifier = Modifier.size(18.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -354,7 +367,15 @@ private fun ChatInputBar(
             enabled = !isLoading
         ) {
             if (isListening) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Cancelar",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             } else {
                 Icon(
                     Icons.Default.Mic,

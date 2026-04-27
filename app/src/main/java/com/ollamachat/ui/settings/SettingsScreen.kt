@@ -55,7 +55,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onKeySaved: () -> Unit = onBack
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -69,7 +70,11 @@ fun SettingsScreen(
         }
     }
 
-    LaunchedEffect(state.error) {
+    LaunchedEffect(state.isSaved) {
+        if (state.isSaved) {
+            onKeySaved()
+        }
+    }
         state.error?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearMessages()

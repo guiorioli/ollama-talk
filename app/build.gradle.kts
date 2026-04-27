@@ -63,5 +63,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.okhttp)
     implementation(libs.gson)
+    implementation(libs.compose.markdown)
     debugImplementation(libs.androidx.ui.tooling)
 }

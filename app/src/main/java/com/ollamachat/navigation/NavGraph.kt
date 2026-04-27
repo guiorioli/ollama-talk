@@ -1,6 +1,7 @@
 package com.ollamachat.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -25,7 +26,14 @@ fun AppNavGraph(
         navController = navController,
         startDestination = Routes.CHAT
     ) {
-        composable(Routes.CHAT) {
+        composable(Routes.CHAT) { entry ->
+            val keySaved = entry.savedStateHandle.get<Boolean>("key_saved") ?: false
+            LaunchedEffect(keySaved) {
+                if (keySaved) {
+                    chatViewModel.refreshApiKeyState()
+                    entry.savedStateHandle.remove<Boolean>("key_saved")
+                }
+            }
             ChatScreen(
                 viewModel = chatViewModel,
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) }
@@ -34,7 +42,13 @@ fun AppNavGraph(
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 viewModel = settingsViewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onKeySaved = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("key_saved", true)
+                    navController.popBackStack()
+                }
             )
         }
     }

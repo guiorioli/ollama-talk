@@ -8,6 +8,7 @@ import com.ollamachat.audio.TextToSpeechManager
 import com.ollamachat.data.api.ChatMessage
 import com.ollamachat.data.api.OllamaApiService
 import com.ollamachat.data.local.PreferencesManager
+import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,7 @@ data class ChatUiState(
     val isLoading: Boolean = false,
     val isListening: Boolean = false,
     val isSpeaking: Boolean = false,
+    val speakingMessageId: Long? = null,
     val isAutoSpeak: Boolean = false,
     val error: String? = null,
     val hasApiKey: Boolean = false
@@ -53,6 +55,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private fun setupSpeechRecognizer() {
         speechRecognizer.onResult = { text ->
             _state.value = _state.value.copy(inputText = text, isListening = false)
+            sendMessage()
         }
         speechRecognizer.onError = { error ->
             _state.value = _state.value.copy(
@@ -67,7 +70,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun setupTextToSpeech() {
         textToSpeech.onDone = {
-            _state.value = _state.value.copy(isSpeaking = false)
+            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
         }
         textToSpeech.onError = {
             _state.value = _state.value.copy(isSpeaking = false, error = it)
@@ -120,6 +123,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             result.fold(
                 onSuccess = { response ->
                     val content = response.message.content
+                    val assistantMessageId = _state.value.messages.firstOrNull { it.isLoading }?.id
                     val updatedMessages = _state.value.messages.map { msg ->
                         if (msg.isLoading) {
                             msg.copy(
@@ -133,7 +137,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         isLoading = false
                     )
                     if (_state.value.isAutoSpeak) {
-                        speakMessage(content)
+                        speakMessage(content, assistantMessageId)
                     }
                 },
                 onFailure = { error ->
@@ -156,14 +160,19 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         speechRecognizer.stopListening()
     }
 
-    fun speakMessage(content: String) {
-        _state.value = _state.value.copy(isSpeaking = true)
-        textToSpeech.speak(content)
+    fun cancelVoiceInput() {
+        speechRecognizer.stopListening()
+        _state.value = _state.value.copy(inputText = "", isListening = false)
+    }
+
+    fun speakMessage(content: String, messageId: Long? = null) {
+        _state.value = _state.value.copy(isSpeaking = true, speakingMessageId = messageId)
+        textToSpeech.speak(stripMarkdown(content))
     }
 
     fun stopSpeaking() {
         textToSpeech.stop()
-        _state.value = _state.value.copy(isSpeaking = false)
+        _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
     }
 
     fun toggleAutoSpeak() {
@@ -178,6 +187,10 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearError() {
         _state.value = _state.value.copy(error = null)
+    }
+
+    fun refreshApiKeyState() {
+        _state.value = _state.value.copy(hasApiKey = prefs.apiKey.isNotBlank())
     }
 
     fun clearChat() {

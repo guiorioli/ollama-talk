@@ -55,6 +55,46 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Gson for JSON serialization
 - All other features (voice, TTS, storage) use native Android APIs
 
+### FR8 — Refresh conversation on key change
+- When returning from Settings after updating the API key, the chat screen must refresh automatically
+- The "missing key" message must disappear as soon as a valid key is saved
+
+### FR9 — Cancel TTS playback
+- A stop button must appear on the message bubble currently being read aloud
+- A global stop button must appear in the top bar when TTS is active
+- Clicking either stops TextToSpeech immediately
+
+### FR10 — Auto-speak toggle icon
+- When auto-speak is enabled: loudspeaker icon (as currently)
+- When auto-speak is disabled: muted/loudspeaker-off icon
+
+### FR11 — Markdown rendering
+- LLM responses must be rendered as formatted Markdown in the chat
+- Use `com.github.jeziellago:compose-markdown` library
+- Before passing text to TTS, strip Markdown symbols so speech flows naturally
+
+### FR12 — Auto-send on voice input
+- After speech recognition transcribes the user's speech, the message is sent automatically
+- No manual "send" click needed after voice input
+
+### FR13 — Cancel voice input
+- A cancel button must be visible during speech recognition
+- Tapping it cancels the recording and discards the transcription
+
+## Non-Functional Requirements
+
+### NFR1 — Build
+- APK compiled locally with Android Studio
+- Kotlin + Jetpack Compose
+- Min SDK: 26 (Android 8.0)
+- Target SDK: 34 (Android 14)
+
+### NFR2 — Minimal external dependencies
+- OkHttp for HTTP calls
+- Gson for JSON serialization
+- `com.github.jeziellago:compose-markdown` for Markdown rendering
+- All other features (voice, TTS, storage) use native Android APIs
+
 ### NFR3 — Offline
 - App does not work offline (depends on Ollama Cloud API)
 - Friendly message when offline
