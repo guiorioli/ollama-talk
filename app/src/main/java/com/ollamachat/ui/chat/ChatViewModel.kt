@@ -8,6 +8,7 @@ import com.ollamachat.audio.TextToSpeechManager
 import com.ollamachat.data.api.ChatMessage
 import com.ollamachat.data.api.OllamaApiService
 import com.ollamachat.data.local.PreferencesManager
+import com.ollamachat.data.local.TtsLanguage
 import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -166,6 +167,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun speakMessage(content: String, messageId: Long? = null) {
+        val lang = TtsLanguage.fromCode(prefs.ttsLanguage)
+        textToSpeech.setLanguage(lang.locale)
         _state.value = _state.value.copy(isSpeaking = true, speakingMessageId = messageId)
         textToSpeech.speak(stripMarkdown(content))
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ollamachat.data.api.ModelInfo
 import com.ollamachat.data.api.OllamaApiService
 import com.ollamachat.data.local.PreferencesManager
+import com.ollamachat.data.local.TtsLanguage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,8 @@ import kotlinx.coroutines.withContext
 data class SettingsUiState(
     val apiKey: String = "",
     val selectedModel: String = PreferencesManager.DEFAULT_MODEL,
+    val ttsLanguage: String = TtsLanguage.DEFAULT.code,
+    val ttsLanguages: List<TtsLanguage> = TtsLanguage.ALL,
     val availableModels: List<ModelInfo> = emptyList(),
     val isLoadingModels: Boolean = false,
     val isSaving: Boolean = false,
@@ -35,7 +38,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     init {
         _state.value = _state.value.copy(
             apiKey = prefs.apiKey,
-            selectedModel = prefs.selectedModel
+            selectedModel = prefs.selectedModel,
+            ttsLanguage = prefs.ttsLanguage
         )
     }
 
@@ -45,6 +49,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun onModelSelected(model: String) {
         _state.value = _state.value.copy(selectedModel = model)
+    }
+
+    fun onTtsLanguageChanged(code: String) {
+        _state.value = _state.value.copy(ttsLanguage = code)
     }
 
     fun loadModels() {
@@ -92,6 +100,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             if (isValid) {
                 prefs.apiKey = apiKey
                 prefs.selectedModel = _state.value.selectedModel
+                prefs.ttsLanguage = _state.value.ttsLanguage
                 _state.value = _state.value.copy(
                     isSaving = false,
                     successMessage = "Settings saved",

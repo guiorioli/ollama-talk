@@ -15,7 +15,6 @@ class TextToSpeechManager(context: Context) {
 
     private val initListener = TextToSpeech.OnInitListener { status ->
         if (status == TextToSpeech.SUCCESS) {
-            tts?.language = Locale("en", "US")
             isInitialized = true
         } else {
             onError?.invoke("Error initializing speech synthesizer")
@@ -33,6 +32,10 @@ class TextToSpeechManager(context: Context) {
                 onError?.invoke("Error playing audio")
             }
         })
+    }
+
+    fun setLanguage(locale: Locale) {
+        tts?.language = locale
     }
 
     fun speak(text: String) {

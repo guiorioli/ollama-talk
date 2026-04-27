@@ -50,6 +50,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.ollamachat.data.local.TtsLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -180,6 +181,20 @@ fun SettingsScreen(
                 Text("Reload model list")
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "TTS Language",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LanguageDropdown(
+                selectedCode = state.ttsLanguage,
+                languages = state.ttsLanguages,
+                onLanguageSelected = viewModel::onTtsLanguageChanged
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
@@ -247,6 +262,45 @@ private fun ModelDropdown(
                     text = { Text(name) },
                     onClick = {
                         onModelSelected(name)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LanguageDropdown(
+    selectedCode: String,
+    languages: List<TtsLanguage>,
+    onLanguageSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = languages.firstOrNull { it.code == selectedCode }?.displayName ?: selectedCode,
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            languages.forEach { lang ->
+                DropdownMenuItem(
+                    text = { Text(lang.displayName) },
+                    onClick = {
+                        onLanguageSelected(lang.code)
                         expanded = false
                     }
                 )
