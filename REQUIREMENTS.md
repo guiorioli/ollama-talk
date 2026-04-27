@@ -1,53 +1,53 @@
 # Ollama Talk — PRD
 
-## Visão Geral
-Aplicativo Android que permite conectar à conta Ollama Cloud e utilizar um chat com modelos cloud selecionados. Suporte a entrada por voz (falar pergunta) e saída por áudio (ouvir resposta via TTS).
+## Overview
+Android app that connects to your Ollama Cloud account and enables chatting with selected cloud models. Supports voice input (speak questions) and audio output (hear responses via TTS).
 
-## Requisitos Funcionais
+## Functional Requirements
 
-### RF1 — Autenticação
-- Usuário insere uma API Key do Ollama Cloud manualmente
-- A key é armazenada localmente no dispositivo (SharedPreferences)
-- Botão de atalho para abrir o navegador em `https://ollama.com/settings/keys`
-- Validação básica da key antes de salvar (test call à API)
+### FR1 — Authentication
+- User manually enters an Ollama Cloud API Key
+- Key is stored locally on the device (SharedPreferences)
+- Shortcut button to open `https://ollama.com/settings/keys` in the browser
+- Basic key validation before saving (test call to the API)
 
-### RF2 — Chat com modelos cloud
-- Envio de mensagens de texto para a API Ollama Cloud (`POST /api/chat`)
-- Exibição do histórico da conversa no formato chat
-- Suporte a streaming desligado (`stream: false`) — aguarda resposta completa
+### FR2 — Chat with cloud models
+- Send text messages to the Ollama Cloud API (`POST /api/chat`)
+- Display conversation history in chat format
+- Streaming disabled (`stream: false`) — waits for full response
 - Default model: `gemma3:27b-cloud`
 
-### RF3 — Seletor de modelo
-- Dropdown/seletor com modelos cloud disponíveis
-- Lista obtida via API (`GET /api/tags`) ou hardcoded com os modelos cloud conhecidos
-- Modelo selecionado persiste entre sessões
+### FR3 — Model selector
+- Dropdown/selector with available cloud models
+- List fetched via API (`GET /api/tags`) or hardcoded known cloud models
+- Selected model persists across sessions
 
-### RF4 — Entrada por voz
-- Botão "Falar" aciona o SpeechRecognizer nativo do Android
-- Transcrição preenche o campo de texto da mensagem
-- Feedback visual de que está gravando
+### FR4 — Voice input
+- "Speak" button triggers the native Android SpeechRecognizer
+- Transcription fills the message text field
+- Visual feedback while recording
 
-### RF5 — Saída por áudio
-- Após receber resposta do modelo, botão "Ouvir" ou reprodução automática via TextToSpeech
-- Controle de play/stop
+### FR5 — Audio output
+- After receiving a model response, "Listen" button or automatic playback via TextToSpeech
+- Play/stop control
 
-### RF6 — Navegação
-- Tela principal: Chat
-- Tela de configurações: API Key, modelo padrão
+### FR6 — Navigation
+- Main screen: Chat
+- Settings screen: API Key, default model
 
-## Requisitos Não-Funcionais
+## Non-Functional Requirements
 
-### RNF1 — Build
-- APK compilado localmente com Android Studio
+### NFR1 — Build
+- APK compiled locally with Android Studio
 - Kotlin + Jetpack Compose
 - Min SDK: 26 (Android 8.0)
 - Target SDK: 34 (Android 14)
 
-### RNF2 — Dependências externas mínimas
-- OkHttp para chamadas HTTP
-- Gson para serialização JSON
-- Demais funcionalidades (voz, TTS, armazenamento) com APIs nativas do Android
+### NFR2 — Minimal external dependencies
+- OkHttp for HTTP calls
+- Gson for JSON serialization
+- All other features (voice, TTS, storage) use native Android APIs
 
-### RNF3 — Oflline
-- App não funciona offline (depende da API Ollama Cloud)
-- Mensagem amigável quando sem conexão
+### NFR3 — Offline
+- App does not work offline (depends on Ollama Cloud API)
+- Friendly message when offline

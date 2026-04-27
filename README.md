@@ -1,22 +1,22 @@
 # Ollama Talk
 
-App Android para chat com modelos cloud do Ollama, com suporte a voz.
+Android app for chatting with Ollama Cloud models, with voice support.
 
 ## Tech Stack
 
-| Camada | Tecnologia |
+| Layer | Technology |
 |---|---|
-| Linguagem | Kotlin |
+| Language | Kotlin |
 | UI | Jetpack Compose |
 | HTTP | OkHttp |
 | JSON | Gson |
-| Voz (input) | SpeechRecognizer (Android SDK) |
-| Voz (output) | TextToSpeech (Android SDK) |
-| Armazenamento | SharedPreferences |
+| Voice (input) | SpeechRecognizer (Android SDK) |
+| Voice (output) | TextToSpeech (Android SDK) |
+| Storage | SharedPreferences |
 | Min SDK | 26 |
 | Target SDK | 34 |
 
-## Estrutura de Pastas
+## Project Structure
 
 ```
 app/src/main/java/com/ollamachat/
@@ -43,18 +43,18 @@ app/src/main/java/com/ollamachat/
         └── SettingsViewModel.kt
 ```
 
-## Como Buildar
+## How to Build
 
-1. Abrir a pasta raiz no **Android Studio**
-2. Aguardar sincronização do Gradle
-3. Conectar dispositivo Android ou abrir emulador
-4. Executar **Run** (Shift+F10)
+1. Open the root folder in **Android Studio**
+2. Wait for Gradle sync to finish
+3. Connect an Android device or start an emulator
+4. Click **Run** (Shift+F10)
 
-O APK será gerado em `app/build/outputs/apk/debug/`
+The APK will be generated at `app/build/outputs/apk/debug/`
 
-## Como Usar
+## How to Use
 
-1. Obter API Key em https://ollama.com/settings/keys
-2. Inserir a key em **Configurações** no app
-3. Selecionar o modelo cloud desejado
-4. Iniciar o chat normalmente ou usar o botão de voz
+1. Get an API Key at https://ollama.com/settings/keys
+2. Enter the key in **Settings** within the app
+3. Select your desired cloud model
+4. Start chatting or use the voice button
