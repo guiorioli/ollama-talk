@@ -43,14 +43,36 @@ app/src/main/java/com/ollamachat/
         └── SettingsViewModel.kt
 ```
 
+## Pre-built APK
+
+A pre-built debug APK is available at `dist/ollama-talk.apk`.
+
 ## How to Build
+
+### Prerequisites
+
+- **Java 17+** — A JDK 17 or higher is required. Android Studio ships with one at `android-studio/jbr/`.
+- **Android SDK** — with platform **android-34** and build-tools installed.
+- **Gradle wrapper** — already included in the repository.
+
+### Via Android Studio
 
 1. Open the root folder in **Android Studio**
 2. Wait for Gradle sync to finish
 3. Connect an Android device or start an emulator
 4. Click **Run** (Shift+F10)
 
-The APK will be generated at `app/build/outputs/apk/debug/`
+### Via Command Line
+
+```bash
+# Set JAVA_HOME to the JDK bundled with Android Studio
+export JAVA_HOME="/path/to/android-studio/jbr"
+
+# Build debug APK
+./gradlew assembleDebug
+```
+
+The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## How to Use
 
