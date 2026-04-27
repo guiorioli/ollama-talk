@@ -1,6 +1,7 @@
 package com.ollamachat.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +20,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Send
@@ -32,22 +36,28 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +70,12 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.ollamachat.data.local.ConversationIndexEntry
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -70,6 +86,8 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     var showClearDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -104,107 +122,140 @@ fun ChatScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Ollama Talk") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                actions = {
-                    if (state.isSpeaking) {
-                        IconButton(onClick = viewModel::stopSpeaking) {
-                            Icon(
-                                Icons.Default.Stop,
-                                contentDescription = "Stop reading",
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-                    if (state.messages.isNotEmpty()) {
-                        IconButton(onClick = { showClearDialog = true }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear chat")
-                        }
-                    }
-                    IconButton(onClick = { viewModel.toggleAutoSpeak() }) {
-                        Icon(
-                            if (state.isAutoSpeak) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                            contentDescription = if (state.isAutoSpeak) "Disable auto-read" else "Enable auto-read",
-                            tint = if (state.isAutoSpeak)
-                                MaterialTheme.colorScheme.onPrimary
-                            else
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
-                        )
-                    }
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            ChatInputBar(
-                inputText = state.inputText,
-                isLoading = state.isLoading,
-                isListening = state.isListening,
-                onInputChanged = viewModel::onInputChanged,
-                onSend = viewModel::sendMessage,
-                onMicClick = {
-                    if (state.isListening) {
-                        viewModel.cancelVoiceInput()
-                    } else if (ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.RECORD_AUDIO
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        viewModel.startListening()
-                    } else {
-                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            if (state.messages.isEmpty()) {
-                EmptyChatHint()
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(state.messages, key = { it.id }) { message ->
-                        MessageBubble(
-                            message = message,
-                            isSpeaking = state.speakingMessageId == message.id,
-                            onSpeak = { viewModel.speakMessage(message.content, message.id) },
-                            onStopSpeaking = viewModel::stopSpeaking
-                        )
-                    }
-                }
-            }
-
-            state.error?.let { error ->
-                AlertDialog(
-                    onDismissRequest = viewModel::clearError,
-                    title = { Text("Notice") },
-                    text = { Text(error) },
-                    confirmButton = {
-                        TextButton(onClick = viewModel::clearError) { Text("OK") }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
+                ConversationDrawerContent(
+                    conversations = state.conversations,
+                    currentConversationId = state.currentConversationId,
+                    onNewConversation = {
+                        scope.launch { drawerState.close() }
+                        viewModel.startNewConversation()
+                    },
+                    onSelectConversation = { conv ->
+                        scope.launch { drawerState.close() }
+                        viewModel.loadConversation(conv.id)
+                    },
+                    onDeleteConversation = { convId ->
+                        viewModel.deleteConversation(convId)
                     }
                 )
             }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Ollama Talk") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch { drawerState.open() }
+                        }) {
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Open menu"
+                            )
+                        }
+                    },
+                    actions = {
+                        if (state.isSpeaking) {
+                            IconButton(onClick = viewModel::stopSpeaking) {
+                                Icon(
+                                    Icons.Default.Stop,
+                                    contentDescription = "Stop reading"
+                                )
+                            }
+                        }
+                        if (state.messages.isNotEmpty()) {
+                            IconButton(onClick = { showClearDialog = true }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear chat")
+                            }
+                        }
+                        IconButton(onClick = { viewModel.toggleAutoSpeak() }) {
+                            Icon(
+                                if (state.isAutoSpeak) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                                contentDescription = if (state.isAutoSpeak) "Disable auto-read" else "Enable auto-read",
+                                tint = if (state.isAutoSpeak)
+                                    MaterialTheme.colorScheme.onPrimary
+                                else
+                                    MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+                            )
+                        }
+                        IconButton(onClick = onOpenSettings) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                ChatInputBar(
+                    inputText = state.inputText,
+                    isLoading = state.isLoading,
+                    isListening = state.isListening,
+                    onInputChanged = viewModel::onInputChanged,
+                    onSend = viewModel::sendMessage,
+                    onMicClick = {
+                        if (state.isListening) {
+                            viewModel.cancelVoiceInput()
+                        } else if (ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.RECORD_AUDIO
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            viewModel.startListening()
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                if (state.messages.isEmpty()) {
+                    EmptyChatHint()
+                } else {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.messages, key = { it.id }) { message ->
+                            MessageBubble(
+                                message = message,
+                                isSpeaking = state.speakingMessageId == message.id,
+                                onSpeak = { viewModel.speakMessage(message.content, message.id) },
+                                onStopSpeaking = viewModel::stopSpeaking
+                            )
+                        }
+                    }
+                }
 
-            if (!state.hasApiKey) {
-                NoApiKeyOverlay(onOpenSettings = onOpenSettings)
+                state.error?.let { error ->
+                    AlertDialog(
+                        onDismissRequest = viewModel::clearError,
+                        title = { Text("Notice") },
+                        text = { Text(error) },
+                        confirmButton = {
+                            TextButton(onClick = viewModel::clearError) { Text("OK") }
+                        }
+                    )
+                }
+
+                if (!state.hasApiKey) {
+                    NoApiKeyOverlay(onOpenSettings = onOpenSettings)
+                }
             }
         }
     }
@@ -327,6 +378,95 @@ private fun MessageBubble(
                                 modifier = Modifier.size(18.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConversationDrawerContent(
+    conversations: List<ConversationIndexEntry>,
+    currentConversationId: String?,
+    onNewConversation: () -> Unit,
+    onSelectConversation: (ConversationIndexEntry) -> Unit,
+    onDeleteConversation: (String) -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault()) }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Conversations",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+        )
+        Button(
+            onClick = onNewConversation,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("New conversation")
+        }
+        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+        if (conversations.isEmpty()) {
+            Text(
+                text = "No past conversations",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(conversations, key = { it.id }) { conv ->
+                    val isCurrent = conv.id == currentConversationId
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .clickable { onSelectConversation(conv) },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isCurrent)
+                                MaterialTheme.colorScheme.primaryContainer
+                            else
+                                MaterialTheme.colorScheme.surface
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = conv.title,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = dateFormat.format(Date(conv.timestamp)),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            IconButton(
+                                onClick = { onDeleteConversation(conv.id) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete conversation",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
                     }
                 }

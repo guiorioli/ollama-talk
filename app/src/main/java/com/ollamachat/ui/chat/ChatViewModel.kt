@@ -7,7 +7,10 @@ import com.ollamachat.audio.SpeechRecognizerManager
 import com.ollamachat.audio.TextToSpeechManager
 import com.ollamachat.data.api.ChatMessage
 import com.ollamachat.data.api.OllamaApiService
+import com.ollamachat.data.local.ConversationIndexEntry
+import com.ollamachat.data.local.ConversationManager
 import com.ollamachat.data.local.PreferencesManager
+import com.ollamachat.data.local.StoredMessage
 import com.ollamachat.data.local.TtsLanguage
 import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.Dispatchers
@@ -33,17 +36,25 @@ data class ChatUiState(
     val speakingMessageId: Long? = null,
     val isAutoSpeak: Boolean = false,
     val error: String? = null,
-    val hasApiKey: Boolean = false
+    val hasApiKey: Boolean = false,
+    val conversations: List<ConversationIndexEntry> = emptyList(),
+    val currentConversationId: String? = null
 )
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private val prefs = PreferencesManager(application)
     private val apiService = OllamaApiService()
+    private val conversationManager = ConversationManager(application)
     val speechRecognizer = SpeechRecognizerManager(application)
     val textToSpeech = TextToSpeechManager(application)
 
-    private val _state = MutableStateFlow(ChatUiState(hasApiKey = prefs.apiKey.isNotBlank()))
+    private val _state = MutableStateFlow(
+        ChatUiState(
+            hasApiKey = prefs.apiKey.isNotBlank(),
+            conversations = conversationManager.listConversations()
+        )
+    )
     val state: StateFlow<ChatUiState> = _state.asStateFlow()
 
     private var messageIdCounter = 0L
@@ -85,6 +96,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun sendMessage() {
         val text = _state.value.inputText.trim()
         if (text.isBlank()) return
+
+        if (_state.value.currentConversationId == null) {
+            _state.value = _state.value.copy(
+                currentConversationId = "${System.currentTimeMillis()}"
+            )
+        }
 
         val apiKey = prefs.apiKey
         if (apiKey.isBlank()) {
@@ -140,6 +157,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     if (_state.value.isAutoSpeak) {
                         speakMessage(content, assistantMessageId)
                     }
+                    saveCurrentConversation()
                 },
                 onFailure = { error ->
                     val updatedMessages = _state.value.messages.filter { !it.isLoading }
@@ -198,7 +216,86 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearChat() {
         textToSpeech.stop()
-        _state.value = ChatUiState(hasApiKey = prefs.apiKey.isNotBlank())
+        _state.value = ChatUiState(
+            hasApiKey = prefs.apiKey.isNotBlank(),
+            conversations = _state.value.conversations
+        )
+        messageIdCounter = 0L
+    }
+
+    fun startNewConversation() {
+        saveIfHasMessages()
+        textToSpeech.stop()
+        _state.value = _state.value.copy(
+            messages = emptyList(),
+            inputText = "",
+            isLoading = false,
+            isSpeaking = false,
+            speakingMessageId = null,
+            error = null,
+            currentConversationId = null
+        )
+        messageIdCounter = 0L
+    }
+
+    fun deleteConversation(id: String) {
+        conversationManager.deleteConversation(id)
+        if (_state.value.currentConversationId == id) {
+            _state.value = _state.value.copy(
+                currentConversationId = null,
+                messages = emptyList()
+            )
+            messageIdCounter = 0L
+        }
+        _state.value = _state.value.copy(
+            conversations = conversationManager.listConversations()
+        )
+    }
+
+    fun loadConversation(id: String) {
+        saveIfHasMessages()
+        val conversation = conversationManager.loadConversation(id) ?: return
+        textToSpeech.stop()
+        messageIdCounter = 0L
+        val messages = conversation.messages.filter { it.content.isNotBlank() }.map {
+            ChatUiMessage(id = messageIdCounter++, role = it.role, content = it.content)
+        }
+        _state.value = _state.value.copy(
+            messages = messages,
+            inputText = "",
+            isLoading = false,
+            isSpeaking = false,
+            speakingMessageId = null,
+            error = null,
+            currentConversationId = id
+        )
+    }
+
+    private fun saveCurrentConversation() {
+        val messages = _state.value.messages
+            .filter { !it.isLoading && it.content.isNotBlank() }
+        if (messages.isEmpty()) return
+
+        val id = _state.value.currentConversationId
+            ?: return
+
+        conversationManager.saveConversation(
+            id = id,
+            messages = messages.map { StoredMessage(role = it.role, content = it.content) },
+            model = prefs.selectedModel
+        )
+        _state.value = _state.value.copy(
+            conversations = conversationManager.listConversations()
+        )
+    }
+
+    private fun saveIfHasMessages() {
+        val hasMessages = _state.value.messages.any { !it.isLoading && it.content.isNotBlank() }
+        if (!hasMessages) return
+        val id = _state.value.currentConversationId
+            ?: "${System.currentTimeMillis()}"
+        _state.value = _state.value.copy(currentConversationId = id)
+        saveCurrentConversation()
     }
 
     override fun onCleared() {
