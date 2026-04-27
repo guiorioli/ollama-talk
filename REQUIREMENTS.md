@@ -81,6 +81,26 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - A cancel button must be visible during speech recognition
 - Tapping it cancels the recording and discards the transcription
 
+### FR14 — Conversation history drawer
+- Hamburger menu icon on the top-left of the chat screen
+- Tapping it opens a side drawer (ModalNavigationDrawer)
+- Drawer items:
+  - "New conversation" button at the top — clears current chat and starts fresh
+  - List of past conversations with title (truncated first message) + timestamp
+- Tapping a past conversation loads its full message history
+- Conversations persist across app restarts
+- Storage: individual JSON files per conversation in internal storage (`filesDir/conversations/`)
+- Index file (`index.json`) stores only metadata (id, title, timestamp, model) for fast drawer loading
+
+### FR15 — Image attachment in chat
+- Paperclip/image icon next to the message input field
+- Tapping it opens the device image picker (ActivityResultContracts)
+- Selected image is displayed as a thumbnail in the input area (removable)
+- On send, image is compressed and sent as base64 via the `images` field in Ollama `/api/chat`
+- Image data is ephemeral (NOT persisted in conversation history)
+- When saving a conversation (FR14), images are replaced by a `[Image]` placeholder in the message
+- Chat bubble shows a visual indicator when a message had an attached image
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build
