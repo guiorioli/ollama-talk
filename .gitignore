@@ -1,0 +1,16 @@
+CLAUDE.md
+TODO.md
+DONE.md
+
+# Android
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+/app/build
