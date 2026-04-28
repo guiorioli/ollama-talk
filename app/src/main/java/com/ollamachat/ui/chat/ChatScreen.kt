@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Stop
@@ -62,9 +63,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -76,6 +81,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ollamachat.data.local.ConversationIndexEntry
+import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -250,7 +256,13 @@ fun ChatScreen(
                                 message = message,
                                 isSpeaking = state.speakingMessageId == message.id,
                                 onSpeak = { viewModel.speakMessage(message.content, message.id) },
-                                onStopSpeaking = viewModel::stopSpeaking
+                                onStopSpeaking = viewModel::stopSpeaking,
+                                onCopy = {
+                                    val plainText = stripMarkdown(message.content)
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("response", plainText))
+                                    Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                }
                             )
                         }
                     }
@@ -335,7 +347,8 @@ private fun MessageBubble(
     message: ChatUiMessage,
     isSpeaking: Boolean,
     onSpeak: () -> Unit,
-    onStopSpeaking: () -> Unit
+    onStopSpeaking: () -> Unit,
+    onCopy: () -> Unit
 ) {
     val isUser = message.role == "user"
     val alignment = if (isUser) Alignment.End else Alignment.Start
@@ -399,16 +412,29 @@ private fun MessageBubble(
                     )
                     if (!isUser && message.content.isNotBlank()) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        IconButton(
-                            onClick = { if (isSpeaking) onStopSpeaking() else onSpeak() },
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
-                                contentDescription = if (isSpeaking) "Stop" else "Listen",
-                                modifier = Modifier.size(18.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = onCopy,
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.ContentCopy,
+                                    contentDescription = "Copy",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            IconButton(
+                                onClick = { if (isSpeaking) onStopSpeaking() else onSpeak() },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
+                                    contentDescription = if (isSpeaking) "Stop" else "Listen",
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }

@@ -101,6 +101,11 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - When saving a conversation (FR14), images are replaced by a `[Image]` placeholder in the message
 - Chat bubble shows a visual indicator when a message had an attached image
 
+### FR16 — Copy response button
+- Copy icon button on each assistant message bubble
+- Copies the plain text version of the response (markdown stripped) to the system clipboard
+- Brief visual feedback after copying (icon change or toast)
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build
