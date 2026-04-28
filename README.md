@@ -2,6 +2,18 @@
 
 Android app for chatting with Ollama Cloud models, with voice support.
 
+## Download (Pre-built APK)
+
+The latest compiled APK is available at:
+
+```
+dist/ollama-talk.apk
+```
+
+Just copy it to your Android device and install. No build required.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -47,10 +59,6 @@ app/src/main/java/com/ollamachat/
     └── MarkdownUtils.kt
 ```
 
-## Pre-built APK
-
-A pre-built debug APK is available at `dist/ollama-talk.apk`.
-
 ## How to Build
 
 ### Prerequisites
@@ -85,5 +93,3 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 3. Select your desired cloud model and TTS language
 4. Start chatting or use the voice button
 5. Tap the speaker icon on any response to hear it read aloud
-
-> The latest pre-built APK is at `dist/ollama-talk.apk`.
