@@ -61,13 +61,13 @@ class SpeechRecognizerManager(context: Context) {
         speechRecognizer.setRecognitionListener(listener)
     }
 
-    fun startListening() {
+    fun startListening(languageCode: String = "en-US") {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your message")
         }
         speechRecognizer.startListening(intent)

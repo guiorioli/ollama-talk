@@ -152,15 +152,15 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 }
             } else null
 
-            val chatMessages = (_state.value.messages + userMessage)
+            val chatMessages = _state.value.messages
                 .filter { !it.isLoading }
-                .map { msg ->
-                    if (msg.hasImage && base64Image != null) {
-                        ChatMessage(role = msg.role, content = msg.content, images = listOf(base64Image))
-                    } else {
-                        ChatMessage(role = msg.role, content = msg.content)
-                    }
-                }
+                .map { msg -> ChatMessage(role = msg.role, content = msg.content) }
+                .toMutableList()
+
+            if (base64Image != null && chatMessages.isNotEmpty()) {
+                val lastIdx = chatMessages.size - 1
+                chatMessages[lastIdx] = chatMessages[lastIdx].copy(images = listOf(base64Image))
+            }
 
             val result = withContext(Dispatchers.IO) {
                 apiService.chat(prefs.selectedModel, chatMessages, apiKey)
@@ -200,7 +200,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startListening() {
-        speechRecognizer.startListening()
+        val lang = TtsLanguage.fromCode(prefs.ttsLanguage)
+        speechRecognizer.startListening(lang.code)
     }
 
     fun stopListening() {
@@ -214,7 +215,11 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun speakMessage(content: String, messageId: Long? = null) {
         val lang = TtsLanguage.fromCode(prefs.ttsLanguage)
-        textToSpeech.setLanguage(lang.locale)
+        val languageOk = textToSpeech.setLanguage(lang.locale)
+        if (!languageOk) {
+            _state.value = _state.value.copy(error = "TTS language data not installed for ${lang.displayName}")
+            return
+        }
         _state.value = _state.value.copy(isSpeaking = true, speakingMessageId = messageId)
         textToSpeech.speak(stripMarkdown(content))
     }
@@ -252,8 +257,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startNewConversation() {
-        saveIfHasMessages()
         textToSpeech.stop()
+        viewModelScope.launch(Dispatchers.Main.immediate) { saveCurrentConversation() }
         _state.value = _state.value.copy(
             messages = emptyList(),
             inputText = "",
@@ -268,66 +273,77 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteConversation(id: String) {
-        conversationManager.deleteConversation(id)
-        if (_state.value.currentConversationId == id) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { conversationManager.deleteConversation(id) }
+            if (_state.value.currentConversationId == id) {
+                _state.value = _state.value.copy(
+                    currentConversationId = null,
+                    messages = emptyList()
+                )
+                messageIdCounter = 0L
+            }
             _state.value = _state.value.copy(
-                currentConversationId = null,
-                messages = emptyList()
+                conversations = withContext(Dispatchers.IO) {
+                    conversationManager.listConversations()
+                }
             )
-            messageIdCounter = 0L
         }
-        _state.value = _state.value.copy(
-            conversations = conversationManager.listConversations()
-        )
     }
 
     fun loadConversation(id: String) {
-        saveIfHasMessages()
-        val conversation = conversationManager.loadConversation(id) ?: return
-        textToSpeech.stop()
-        messageIdCounter = 0L
-        val messages = conversation.messages.filter { it.content.isNotBlank() }.map { stored ->
-            val hasImage = stored.content.startsWith("[Image]")
-            val cleanContent = if (hasImage) {
-                stored.content.removePrefix("[Image] ").removePrefix("[Image]")
-            } else stored.content
-            ChatUiMessage(id = messageIdCounter++, role = stored.role, content = cleanContent, hasImage = hasImage)
+        viewModelScope.launch {
+            saveIfHasMessages()
+            val conversation = withContext(Dispatchers.IO) {
+                conversationManager.loadConversation(id)
+            } ?: return@launch
+            textToSpeech.stop()
+            messageIdCounter = 0L
+            val messages = conversation.messages.filter { it.content.isNotBlank() }.map { stored ->
+                val hasImage = stored.content.startsWith("[Image]")
+                val cleanContent = if (hasImage) {
+                    stored.content.removePrefix("[Image] ").removePrefix("[Image]")
+                } else stored.content
+                ChatUiMessage(id = messageIdCounter++, role = stored.role, content = cleanContent, hasImage = hasImage)
+            }
+            _state.value = _state.value.copy(
+                messages = messages,
+                inputText = "",
+                isLoading = false,
+                isSpeaking = false,
+                speakingMessageId = null,
+                error = null,
+                currentConversationId = id
+            )
+        }
+    }
+
+    private suspend fun saveCurrentConversation() {
+        val msgs = _state.value.messages
+            .filter { !it.isLoading && (it.content.isNotBlank() || it.hasImage) }
+        if (msgs.isEmpty()) return
+
+        val id = _state.value.currentConversationId ?: return
+
+        withContext(Dispatchers.IO) {
+            conversationManager.saveConversation(
+                id = id,
+                messages = msgs.map {
+                    val storedContent = if (it.hasImage) {
+                        if (it.content.isBlank()) "[Image]" else "[Image] ${it.content}"
+                    } else it.content
+                    StoredMessage(role = it.role, content = storedContent)
+                },
+                model = prefs.selectedModel
+            )
         }
         _state.value = _state.value.copy(
-            messages = messages,
-            inputText = "",
-            isLoading = false,
-            isSpeaking = false,
-            speakingMessageId = null,
-            error = null,
-            currentConversationId = id
+            conversations = withContext(Dispatchers.IO) {
+                conversationManager.listConversations()
+            }
         )
     }
 
-    private fun saveCurrentConversation() {
-        val messages = _state.value.messages
-            .filter { !it.isLoading && (it.content.isNotBlank() || it.hasImage) }
-        if (messages.isEmpty()) return
-
-        val id = _state.value.currentConversationId
-            ?: return
-
-        conversationManager.saveConversation(
-            id = id,
-            messages = messages.map {
-                val storedContent = if (it.hasImage) {
-                    if (it.content.isBlank()) "[Image]" else "[Image] ${it.content}"
-                } else it.content
-                StoredMessage(role = it.role, content = storedContent)
-            },
-            model = prefs.selectedModel
-        )
-        _state.value = _state.value.copy(
-            conversations = conversationManager.listConversations()
-        )
-    }
-
-    private fun saveIfHasMessages() {
+    private suspend fun saveIfHasMessages() {
         val hasMessages = _state.value.messages.any { !it.isLoading && it.content.isNotBlank() }
         if (!hasMessages) return
         val id = _state.value.currentConversationId

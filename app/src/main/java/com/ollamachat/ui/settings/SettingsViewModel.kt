@@ -118,4 +118,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun clearMessages() {
         _state.value = _state.value.copy(successMessage = null, error = null)
     }
+
+    fun onNavigatedAway() {
+        _state.value = _state.value.copy(isSaved = false)
+    }
 }

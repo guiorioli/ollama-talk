@@ -11,8 +11,8 @@ android {
         applicationId = "com.ollamachat"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 5
+        versionName = "1.4"
     }
 
     buildTypes {
@@ -65,4 +65,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.compose.markdown)
     debugImplementation(libs.androidx.ui.tooling)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

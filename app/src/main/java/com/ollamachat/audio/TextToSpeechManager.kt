@@ -9,6 +9,8 @@ class TextToSpeechManager(context: Context) {
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
+    private var pendingText: String? = null
+    private var currentLocale: Locale = Locale("en", "US")
 
     var onDone: (() -> Unit)? = null
     var onError: ((String) -> Unit)? = null
@@ -16,7 +18,10 @@ class TextToSpeechManager(context: Context) {
     private val initListener = TextToSpeech.OnInitListener { status ->
         if (status == TextToSpeech.SUCCESS) {
             isInitialized = true
+            pendingText?.let { doSpeak(it) }
+            pendingText = null
         } else {
+            isInitialized = false
             onError?.invoke("Error initializing speech synthesizer")
         }
     }
@@ -34,20 +39,36 @@ class TextToSpeechManager(context: Context) {
         })
     }
 
-    fun setLanguage(locale: Locale) {
-        tts?.language = locale
+    fun setLanguage(locale: Locale): Boolean {
+        currentLocale = locale
+        val result = tts?.setLanguage(locale) ?: TextToSpeech.LANG_NOT_SUPPORTED
+        return result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
     }
 
     fun speak(text: String) {
-        if (!isInitialized) {
-            onError?.invoke("Speech synthesizer not ready")
+        val trimmed = text.trim()
+        if (trimmed.isEmpty()) {
+            onError?.invoke("No text to read")
             return
         }
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)
+        if (!isInitialized) {
+            pendingText = trimmed
+            return
+        }
+        pendingText = null
+        doSpeak(trimmed)
+    }
+
+    private fun doSpeak(text: String) {
+        val result = tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)
+        if (result != TextToSpeech.SUCCESS) {
+            onError?.invoke("Could not start speech")
+        }
     }
 
     fun stop() {
         tts?.stop()
+        pendingText = null
     }
 
     fun isSpeaking(): Boolean = tts?.isSpeaking ?: false
@@ -56,6 +77,7 @@ class TextToSpeechManager(context: Context) {
         tts?.stop()
         tts?.shutdown()
         tts = null
+        isInitialized = false
     }
 
     companion object {

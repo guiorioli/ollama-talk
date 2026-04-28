@@ -42,12 +42,16 @@ fun AppNavGraph(
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 viewModel = settingsViewModel,
-                onBack = { navController.popBackStack() },
+                onBack = {
+                    settingsViewModel.onNavigatedAway()
+                    navController.popBackStack()
+                },
                 onKeySaved = {
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("key_saved", true)
                     navController.popBackStack()
+                    settingsViewModel.onNavigatedAway()
                 }
             )
         }
