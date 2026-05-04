@@ -410,7 +410,7 @@ private fun MessageBubble(
                         markdown = message.content,
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    if (!isUser && message.content.isNotBlank()) {
+                    if (message.content.isNotBlank()) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(
@@ -424,16 +424,18 @@ private fun MessageBubble(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
-                            IconButton(
-                                onClick = { if (isSpeaking) onStopSpeaking() else onSpeak() },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(
-                                    if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
-                                    contentDescription = if (isSpeaking) "Stop" else "Listen",
-                                    modifier = Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
+                            if (!isUser) {
+                                IconButton(
+                                    onClick = { if (isSpeaking) onStopSpeaking() else onSpeak() },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
+                                        contentDescription = if (isSpeaking) "Stop" else "Listen",
+                                        modifier = Modifier.size(18.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                     }
