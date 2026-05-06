@@ -72,4 +72,57 @@ class MarkdownUtilsTest {
         val result = stripMarkdown(codeOnly)
         assertTrue("Code-only text should become empty or whitespace", result.isBlank())
     }
+
+    @Test
+    fun `stripMarkdown removes inline LaTeX`() {
+        assertEquals("Go to step  2", stripMarkdown("Go to step ${'$'}\rightarrow${'$'} 2"))
+        assertEquals("a   b", stripMarkdown("a ${'$'}x${'$'} ${'$'}y${'$'} b"))
+    }
+
+    @Test
+    fun `stripMarkdown removes display LaTeX`() {
+        val input = """Before
+${'$'}${'$'}\n\sum_{i=1}^{n} i\n${'$'}${'$'}\nAfter"""
+        val result = stripMarkdown(input)
+        assertFalse("Should not contain $$", result.contains("$$"))
+        assertTrue("Should keep surrounding text", result.contains("Before"))
+        assertTrue("Should keep surrounding text", result.contains("After"))
+    }
+
+    @Test
+    fun `stripMarkdown decodes and cleans HTML entities`() {
+        assertEquals("Go to step → 2", stripMarkdown("Go to step &rightarrow; 2"))
+        assertEquals("A < B > C", stripMarkdown("A &lt; B &gt; C"))
+    }
+
+    @Test
+    fun `stripMarkdown removes table separators and pipes`() {
+        val input = "| A | B |\n|---|---|\n| 1 | 2 |"
+        val result = stripMarkdown(input)
+        assertFalse("Should not contain pipes", result.contains("|"))
+        assertTrue("Should keep cell text", result.contains("A"))
+        assertTrue("Should keep cell text", result.contains("1"))
+    }
+
+    @Test
+    fun `preProcessMarkdownForDisplay decodes HTML entities`() {
+        assertEquals("Go → there", preProcessMarkdownForDisplay("Go &rightarrow; there"))
+        assertEquals("A < B", preProcessMarkdownForDisplay("A &lt; B"))
+    }
+
+    @Test
+    fun `preProcessMarkdownForDisplay replaces LaTeX arrows with Unicode`() {
+        assertEquals("→", preProcessMarkdownForDisplay("""${'$'}\rightarrow${'$'}"""))
+        assertEquals("←", preProcessMarkdownForDisplay("""${'$'}\leftarrow${'$'}"""))
+        assertEquals("x → y", preProcessMarkdownForDisplay("""${'$'}x \to y${'$'}"""))
+    }
+
+    @Test
+    fun `preProcessMarkdownForDisplay replaces display LaTeX`() {
+        val input = """${'$'}${'$'}\n\sum_{i=1}^{n} i \rightarrow \infty\n${'$'}${'$'}"""
+        val result = preProcessMarkdownForDisplay(input)
+        assertFalse("Should not contain latex backslash arrows", result.contains("\\rightarrow"))
+        assertTrue("Should contain Unicode arrow", result.contains("→"))
+        assertTrue("Should contain infinity", result.contains("∞"))
+    }
 }

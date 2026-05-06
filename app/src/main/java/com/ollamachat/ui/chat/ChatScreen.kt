@@ -81,6 +81,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ollamachat.data.local.ConversationIndexEntry
+import com.ollamachat.util.preProcessMarkdownForDisplay
 import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -407,7 +408,7 @@ private fun MessageBubble(
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                     MarkdownText(
-                        markdown = message.content,
+                        markdown = preProcessMarkdownForDisplay(message.content),
                         style = MaterialTheme.typography.bodyLarge
                     )
                     if (message.content.isNotBlank()) {
