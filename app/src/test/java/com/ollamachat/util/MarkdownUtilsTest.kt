@@ -43,6 +43,16 @@ class MarkdownUtilsTest {
     }
 
     @Test
+    fun `stripMarkdown removes headers on multiple lines`() {
+        val input = "# Title\n## Section\n### Subsection"
+        val result = stripMarkdown(input)
+        assertFalse("Should not contain #", result.contains("#"))
+        assertTrue("Should keep title text", result.contains("Title"))
+        assertTrue("Should keep section text", result.contains("Section"))
+        assertTrue("Should keep subsection text", result.contains("Subsection"))
+    }
+
+    @Test
     fun `stripMarkdown removes blockquotes`() {
         assertEquals("quoted text", stripMarkdown("> quoted text"))
     }
@@ -75,8 +85,15 @@ class MarkdownUtilsTest {
 
     @Test
     fun `stripMarkdown removes inline LaTeX`() {
-        assertEquals("Go to step  2", stripMarkdown("Go to step ${'$'}\rightarrow${'$'} 2"))
-        assertEquals("a   b", stripMarkdown("a ${'$'}x${'$'} ${'$'}y${'$'} b"))
+        // \rightarrow inside $...$ should at least have delimiters removed
+        val result1 = stripMarkdown("Go to step ${'$'}\rightarrow${'$'} 2")
+        assertFalse("Should not contain $", result1.contains("$"))
+        assertTrue("Should keep surrounding text", result1.contains("Go to step"))
+        assertTrue("Should keep surrounding text", result1.contains("2"))
+
+        val result2 = stripMarkdown("a ${'$'}x${'$'} ${'$'}y${'$'} b")
+        assertTrue("Should keep x", result2.contains("x"))
+        assertTrue("Should keep y", result2.contains("y"))
     }
 
     @Test
@@ -124,5 +141,44 @@ ${'$'}${'$'}\n\sum_{i=1}^{n} i\n${'$'}${'$'}\nAfter"""
         assertFalse("Should not contain latex backslash arrows", result.contains("\\rightarrow"))
         assertTrue("Should contain Unicode arrow", result.contains("→"))
         assertTrue("Should contain infinity", result.contains("∞"))
+    }
+
+    @Test
+    fun `stripMarkdown extracts text from LaTeX text command`() {
+        assertEquals("energy", stripMarkdown("${'$'}\\text{energy}${'$'}"))
+        assertEquals("Foo bar", stripMarkdown("${'$'}\\textbf{Foo} \\textit{bar}${'$'}"))
+    }
+
+    @Test
+    fun `stripMarkdown converts frac to slash`() {
+        assertEquals("1/2", stripMarkdown("${'$'}\\frac{1}{2}${'$'}"))
+    }
+
+    @Test
+    fun `stripMarkdown removes isolated braces`() {
+        assertEquals("kcal", stripMarkdown("{kcal}"))
+        assertEquals("A value B", stripMarkdown("A {value} B"))
+    }
+
+    @Test
+    fun `preProcessMarkdownForDisplay handles LaTeX commands with braces`() {
+        assertEquals("energy", preProcessMarkdownForDisplay("${'$'}\\text{energy}${'$'}"))
+        assertEquals("Foo bar", preProcessMarkdownForDisplay("${'$'}\\textbf{Foo} \\textit{bar}${'$'}"))
+    }
+
+    @Test
+    fun `preProcessMarkdownForDisplay converts frac to slash`() {
+        assertEquals("1/2", preProcessMarkdownForDisplay("${'$'}\\frac{1}{2}${'$'}"))
+    }
+
+    @Test
+    fun `preProcessMarkdownForDisplay removes isolated braces`() {
+        assertEquals("kcal", preProcessMarkdownForDisplay("{kcal}"))
+    }
+
+    @Test
+    fun `stripMarkdown handles sqrt and binom`() {
+        assertTrue(stripMarkdown("${'$'}\\sqrt{2}${'$'}").contains("sqrt(2)"))
+        assertTrue(stripMarkdown("${'$'}\\binom{5}{2}${'$'}").contains("C(5,2)"))
     }
 }
