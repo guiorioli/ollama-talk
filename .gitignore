@@ -15,3 +15,8 @@ setenv.sh
 .cxx
 local.properties
 /app/build
+
+# Signing
+*.keystore
+*.jks
+key.properties
