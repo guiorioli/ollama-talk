@@ -153,7 +153,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Modelo",
+                text = "Model",
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -228,7 +228,7 @@ fun SettingsScreen(
             OutlinedButton(
                 onClick = {
                     val intent = Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse("https://liberapay.com/gui.orioli/donate"))
+                        .setData(Uri.parse("https://buy.stripe.com/6oU6oH6Xn8VR2YFatK83C00"))
                     context.startActivity(intent)
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -236,6 +236,21 @@ fun SettingsScreen(
                 Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Buy me a coffee! ☕")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("https://liberapay.com/gui.orioli/donate"))
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Recurring donation 💚")
             }
         }
     }
