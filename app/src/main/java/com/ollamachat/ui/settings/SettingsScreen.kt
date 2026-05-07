@@ -222,6 +222,21 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            OutlinedButton(
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("https://liberapay.com/gui.orioli/donate"))
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Buy me a coffee! ☕")
+            }
         }
     }
 }

@@ -115,6 +115,11 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Markdown is stripped from the copied text so it reads naturally
 - Brief visual feedback after copying (icon change or toast)
 
+### FR18 — Donate button
+- "Buy me a coffee!" button in the Settings screen, below the Save button
+- Opens the Liberapay donation page (`https://liberapay.com/gui.orioli/donate`) in the device's default browser
+- Uses the same pattern as the existing "Get API Key" external link button
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build

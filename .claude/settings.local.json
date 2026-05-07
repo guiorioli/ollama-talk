@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Users\\\\guilherme.orioli\\\\android-studio\\\\jbr\"; C:\\\\Users\\\\guilherme.orioli\\\\projects\\\\ollama-talk\\\\gradlew.bat assembleRelease --no-daemon)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\guilherme.orioli\\\\android-studio\\\\sdk\\\\build-tools\\\\\" | Sort-Object Name -Descending | Select-Object -First 1 | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-Item C:\\\\Users\\\\guilherme.orioli\\\\.android\\\\debug.keystore | ForEach-Object { \"Exists: $\\($_.Exists\\), Length: $\\($_.Length\\)\" })",
+      "Bash(export JAVA_HOME=\"/c/Users/guilherme.orioli/android-studio/jbr\")",
+      "Bash(./gradlew :app:test)",
+      "Bash(./gradlew assembleDebug)"
+    ]
+  }
+}
