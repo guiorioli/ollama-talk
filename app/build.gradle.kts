@@ -13,11 +13,11 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.ollamachat"
+    namespace = "com.guiorioli.ollamatalk"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.ollamachat"
+        applicationId = "com.guiorioli.ollamatalk"
         minSdk = 26
         targetSdk = 34
         versionCode = 12

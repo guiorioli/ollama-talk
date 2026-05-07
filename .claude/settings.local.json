@@ -6,7 +6,8 @@
       "PowerShell(Get-Item C:\\\\Users\\\\guilherme.orioli\\\\.android\\\\debug.keystore | ForEach-Object { \"Exists: $\\($_.Exists\\), Length: $\\($_.Length\\)\" })",
       "Bash(export JAVA_HOME=\"/c/Users/guilherme.orioli/android-studio/jbr\")",
       "Bash(./gradlew :app:test)",
-      "Bash(./gradlew assembleDebug)"
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew clean *)"
     ]
   }
 }
