@@ -81,6 +81,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ollamachat.data.local.ConversationIndexEntry
+import com.ollamachat.util.ConversationMessage
+import com.ollamachat.util.formatConversationText
 import com.ollamachat.util.preProcessMarkdownForDisplay
 import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.launch
@@ -192,6 +194,24 @@ fun ChatScreen(
                             }
                         }
                         if (state.messages.isNotEmpty()) {
+                            IconButton(onClick = {
+                                val text = formatConversationText(
+                                    state.messages.map { msg ->
+                                        ConversationMessage(
+                                            role = msg.role,
+                                            content = msg.content,
+                                            hasImage = msg.hasImage,
+                                            isLoading = msg.isLoading
+                                        )
+                                    },
+                                    state.selectedModel
+                                )
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("conversation", text))
+                                Toast.makeText(context, "Conversation copied!", Toast.LENGTH_SHORT).show()
+                            }) {
+                                Icon(Icons.Default.ContentCopy, contentDescription = "Copy conversation")
+                            }
                             IconButton(onClick = { showClearDialog = true }) {
                                 Icon(Icons.Default.Clear, contentDescription = "Clear chat")
                             }

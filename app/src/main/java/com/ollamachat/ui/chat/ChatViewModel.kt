@@ -13,6 +13,7 @@ import com.ollamachat.data.local.PreferencesManager
 import com.ollamachat.data.local.StoredMessage
 import com.ollamachat.data.local.TtsLanguage
 import com.ollamachat.util.ImageUtils
+import com.ollamachat.util.formatConversationText
 import com.ollamachat.util.stripMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,7 +42,8 @@ data class ChatUiState(
     val hasApiKey: Boolean = false,
     val conversations: List<ConversationIndexEntry> = emptyList(),
     val currentConversationId: String? = null,
-    val pendingImageUri: String? = null
+    val pendingImageUri: String? = null,
+    val selectedModel: String = ""
 )
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
@@ -55,7 +57,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableStateFlow(
         ChatUiState(
             hasApiKey = prefs.apiKey.isNotBlank(),
-            conversations = conversationManager.listConversations()
+            conversations = conversationManager.listConversations(),
+            selectedModel = prefs.selectedModel
         )
     )
     val state: StateFlow<ChatUiState> = _state.asStateFlow()
@@ -243,8 +246,11 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _state.value = _state.value.copy(error = null)
     }
 
-    fun refreshApiKeyState() {
-        _state.value = _state.value.copy(hasApiKey = prefs.apiKey.isNotBlank())
+    fun refreshSettingsState() {
+        _state.value = _state.value.copy(
+            hasApiKey = prefs.apiKey.isNotBlank(),
+            selectedModel = prefs.selectedModel
+        )
     }
 
     fun clearChat() {

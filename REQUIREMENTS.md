@@ -106,6 +106,15 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Copies the plain text version of the response (markdown stripped) to the system clipboard
 - Brief visual feedback after copying (icon change or toast)
 
+### FR17 — Copy entire conversation
+- Copy icon button in the chat top bar (next to the hamburger menu or inside an overflow/menu)
+- Copies the full conversation history to the system clipboard as plain text
+- Each message prefixed with a separator indicating the speaker:
+  - User messages: `--- User`
+  - Assistant messages: `--- Ollama (<model-name>)`
+- Markdown is stripped from the copied text so it reads naturally
+- Brief visual feedback after copying (icon change or toast)
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build

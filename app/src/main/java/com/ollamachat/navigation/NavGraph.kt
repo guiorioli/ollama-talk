@@ -30,7 +30,7 @@ fun AppNavGraph(
             val keySaved = entry.savedStateHandle.get<Boolean>("key_saved") ?: false
             LaunchedEffect(keySaved) {
                 if (keySaved) {
-                    chatViewModel.refreshApiKeyState()
+                    chatViewModel.refreshSettingsState()
                     entry.savedStateHandle.remove<Boolean>("key_saved")
                 }
             }

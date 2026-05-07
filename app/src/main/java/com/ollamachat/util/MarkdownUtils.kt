@@ -38,6 +38,27 @@ fun stripMarkdown(markdown: String): String {
         .trim()
 }
 
+data class ConversationMessage(
+    val role: String,
+    val content: String,
+    val hasImage: Boolean = false,
+    val isLoading: Boolean = false
+)
+
+fun formatConversationText(messages: List<ConversationMessage>, model: String): String {
+    return buildString {
+        messages.filter { !it.isLoading }.forEach { msg ->
+            val prefix = if (msg.role == "user") "--- User" else "--- Ollama ($model)"
+            appendLine(prefix)
+            val content = if (msg.hasImage) {
+                if (msg.content.isBlank()) "[Image]" else "[Image] ${msg.content}"
+            } else msg.content
+            appendLine(stripMarkdown(content))
+            appendLine()
+        }
+    }.trim()
+}
+
 fun preProcessMarkdownForDisplay(markdown: String): String {
     return markdown
         .let { stripLatexCommandsWithArgs(it) }

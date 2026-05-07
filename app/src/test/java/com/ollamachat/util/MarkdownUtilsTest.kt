@@ -181,4 +181,47 @@ ${'$'}${'$'}\n\sum_{i=1}^{n} i\n${'$'}${'$'}\nAfter"""
         assertTrue(stripMarkdown("${'$'}\\sqrt{2}${'$'}").contains("sqrt(2)"))
         assertTrue(stripMarkdown("${'$'}\\binom{5}{2}${'$'}").contains("C(5,2)"))
     }
+
+    @Test
+    fun `formatConversationText formats user and assistant messages`() {
+        val messages = listOf(
+            ConversationMessage(role = "user", content = "Hello **world**"),
+            ConversationMessage(role = "assistant", content = "Hi *there*", hasImage = false, isLoading = false)
+        )
+        val result = formatConversationText(messages, "gemma3:27b-cloud")
+        assertTrue(result.contains("--- User"))
+        assertTrue(result.contains("Hello world"))
+        assertTrue(result.contains("--- Ollama (gemma3:27b-cloud)"))
+        assertTrue(result.contains("Hi there"))
+        assertFalse(result.contains("**"))
+        assertFalse(result.contains("*"))
+    }
+
+    @Test
+    fun `formatConversationText skips loading messages`() {
+        val messages = listOf(
+            ConversationMessage(role = "user", content = "Question"),
+            ConversationMessage(role = "assistant", content = "", isLoading = true)
+        )
+        val result = formatConversationText(messages, "model-x")
+        assertTrue(result.contains("--- User"))
+        assertTrue(result.contains("Question"))
+        assertFalse(result.contains("--- Ollama"))
+    }
+
+    @Test
+    fun `formatConversationText handles image placeholder`() {
+        val messages = listOf(
+            ConversationMessage(role = "user", content = "", hasImage = true),
+            ConversationMessage(role = "user", content = "Look at this", hasImage = true)
+        )
+        val result = formatConversationText(messages, "model-y")
+        assertTrue(result.contains("[Image]"))
+        assertTrue(result.contains("[Image] Look at this"))
+    }
+
+    @Test
+    fun `formatConversationText returns empty string for empty list`() {
+        assertEquals("", formatConversationText(emptyList(), "model-z"))
+    }
 }
