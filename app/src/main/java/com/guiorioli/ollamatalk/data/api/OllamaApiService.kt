@@ -1,6 +1,7 @@
 package com.guiorioli.ollamatalk.data.api
 
 import com.google.gson.Gson
+import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -22,6 +23,9 @@ class OllamaApiService {
     companion object {
         private const val BASE_URL = "https://ollama.com"
     }
+
+    @Volatile
+    private var currentCall: Call? = null
 
     private fun buildAuthorizedRequest(path: String, apiKey: String): Request.Builder {
         return Request.Builder()
@@ -46,7 +50,10 @@ class OllamaApiService {
             .build()
 
         return try {
-            val response = client.newCall(request).execute()
+            val call = client.newCall(request)
+            currentCall = call
+            val response = call.execute()
+            currentCall = null
             val body = response.body?.string()
             if (response.isSuccessful && body != null) {
                 val chatResponse = gson.fromJson(body, ChatResponse::class.java)
@@ -55,8 +62,14 @@ class OllamaApiService {
                 Result.failure(IOException("Erro ${response.code}: ${response.message}"))
             }
         } catch (e: Exception) {
+            currentCall = null
             Result.failure(e)
         }
+    }
+
+    fun cancelChat() {
+        currentCall?.cancel()
+        currentCall = null
     }
 
     fun listModels(apiKey: String): Result<List<ModelInfo>> {

@@ -283,7 +283,8 @@ fun ChatScreen(
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("response", plainText))
                                     Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
-                                }
+                                },
+                                onCancelLoading = if (message.isLoading) viewModel::cancelMessage else null
                             )
                         }
                     }
@@ -369,7 +370,8 @@ private fun MessageBubble(
     isSpeaking: Boolean,
     onSpeak: () -> Unit,
     onStopSpeaking: () -> Unit,
-    onCopy: () -> Unit
+    onCopy: () -> Unit,
+    onCancelLoading: (() -> Unit)? = null
 ) {
     val isUser = message.role == "user"
     val alignment = if (isUser) Alignment.End else Alignment.Start
@@ -408,6 +410,20 @@ private fun MessageBubble(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        if (onCancelLoading != null) {
+                            IconButton(
+                                onClick = onCancelLoading,
+                                modifier = Modifier.size(20.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Cancel",
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
                     }
                 } else {
                     if (message.hasImage) {

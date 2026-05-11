@@ -120,6 +120,12 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Opens the Liberapay donation page (`https://liberapay.com/gui.orioli/donate`) in the device's default browser
 - Uses the same pattern as the existing "Get API Key" external link button
 
+### FR19 — Cancel ongoing request
+- A cancel button appears next to the "Thinking…" indicator inside the assistant loading bubble
+- Tapping it immediately cancels the in-flight HTTP request and removes the loading bubble
+- The user's message remains in the chat history
+- Visual feedback: the loading bubble disappears and the input field becomes enabled again
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build

@@ -16,9 +16,11 @@ import com.guiorioli.ollamatalk.util.ImageUtils
 import com.guiorioli.ollamatalk.util.formatConversationText
 import com.guiorioli.ollamatalk.util.stripMarkdown
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -64,6 +66,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val state: StateFlow<ChatUiState> = _state.asStateFlow()
 
     private var messageIdCounter = 0L
+    private var currentChatJob: Job? = null
 
     init {
         setupSpeechRecognizer()
@@ -146,7 +149,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             error = null
         )
 
-        viewModelScope.launch {
+        currentChatJob = viewModelScope.launch {
             val base64Image = if (imageUri != null) {
                 withContext(Dispatchers.IO) {
                     val uri = android.net.Uri.parse(imageUri)
@@ -168,6 +171,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             val result = withContext(Dispatchers.IO) {
                 apiService.chat(prefs.selectedModel, chatMessages, apiKey)
             }
+
+            if (!isActive) return@launch
 
             result.fold(
                 onSuccess = { response ->
@@ -191,6 +196,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     saveCurrentConversation()
                 },
                 onFailure = { error ->
+                    if (!isActive) return@fold
                     val updatedMessages = _state.value.messages.filter { !it.isLoading }
                     _state.value = _state.value.copy(
                         messages = updatedMessages,
@@ -199,7 +205,20 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
             )
+            currentChatJob = null
         }
+    }
+
+    fun cancelMessage() {
+        currentChatJob?.cancel()
+        currentChatJob = null
+        apiService.cancelChat()
+        val updatedMessages = _state.value.messages.filter { !it.isLoading }
+        _state.value = _state.value.copy(
+            messages = updatedMessages,
+            isLoading = false,
+            error = null
+        )
     }
 
     fun startListening() {
