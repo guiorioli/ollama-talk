@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.guiorioli.ollamatalk.audio.SpeechRecognizerManager
+import com.guiorioli.ollamatalk.audio.StreamingTtsManager
 import com.guiorioli.ollamatalk.audio.TextToSpeechManager
 import com.guiorioli.ollamatalk.data.api.ChatMessage
 import com.guiorioli.ollamatalk.data.api.OllamaApiService
@@ -20,6 +21,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,6 +70,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private var messageIdCounter = 0L
     private var currentChatJob: Job? = null
+    private val streamingTts = StreamingTtsManager(textToSpeech)
 
     init {
         setupSpeechRecognizer()
@@ -90,11 +94,11 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setupTextToSpeech() {
-        textToSpeech.onDone = {
+        textToSpeech.onDone = { utteranceId ->
             _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
         }
-        textToSpeech.onError = {
-            _state.value = _state.value.copy(isSpeaking = false, error = it)
+        textToSpeech.onError = { utteranceId ->
+            _state.value = _state.value.copy(isSpeaking = false, error = "TTS error")
         }
     }
 
@@ -168,44 +172,52 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 chatMessages[lastIdx] = chatMessages[lastIdx].copy(images = listOf(base64Image))
             }
 
-            val result = withContext(Dispatchers.IO) {
-                apiService.chat(prefs.selectedModel, chatMessages, apiKey)
+            if (_state.value.isAutoSpeak) {
+                streamingTts.start()
             }
 
-            if (!isActive) return@launch
+            try {
+                apiService.chatAsFlow(prefs.selectedModel, chatMessages, apiKey)
+                    .flowOn(Dispatchers.IO)
+                    .onCompletion { error ->
+                        apiService.cancelChat()
+                        currentChatJob = null
+                    }
+                    .collect { chunk ->
+                        if (!isActive) return@collect
+                        val updatedMessages = _state.value.messages.map { msg ->
+                            if (msg.isLoading) {
+                                msg.copy(content = msg.content + chunk)
+                            } else msg
+                        }
+                        _state.value = _state.value.copy(messages = updatedMessages)
+                        if (_state.value.isAutoSpeak) {
+                            streamingTts.append(stripMarkdown(chunk))
+                        }
+                    }
 
-            result.fold(
-                onSuccess = { response ->
-                    val content = response.message.content
-                    val assistantMessageId = _state.value.messages.firstOrNull { it.isLoading }?.id
-                    val updatedMessages = _state.value.messages.map { msg ->
-                        if (msg.isLoading) {
-                            msg.copy(
-                                content = content,
-                                isLoading = false
-                            )
-                        } else msg
-                    }
-                    _state.value = _state.value.copy(
-                        messages = updatedMessages,
-                        isLoading = false
-                    )
-                    if (_state.value.isAutoSpeak) {
-                        speakMessage(content, assistantMessageId)
-                    }
-                    saveCurrentConversation()
-                },
-                onFailure = { error ->
-                    if (!isActive) return@fold
-                    val updatedMessages = _state.value.messages.filter { !it.isLoading }
-                    _state.value = _state.value.copy(
-                        messages = updatedMessages,
-                        isLoading = false,
-                        error = error.message ?: "Error sending message"
-                    )
+                val finalMessages = _state.value.messages.map { msg ->
+                    if (msg.isLoading) msg.copy(isLoading = false) else msg
                 }
-            )
-            currentChatJob = null
+                _state.value = _state.value.copy(
+                    messages = finalMessages,
+                    isLoading = false
+                )
+                if (_state.value.isAutoSpeak) {
+                    streamingTts.finish()
+                }
+                saveCurrentConversation()
+            } catch (e: Exception) {
+                if (!isActive) return@launch
+                streamingTts.stop()
+                val updatedMessages = _state.value.messages.filter { !it.isLoading }
+                _state.value = _state.value.copy(
+                    messages = updatedMessages,
+                    isLoading = false,
+                    error = e.message ?: "Error sending message"
+                )
+                currentChatJob = null
+            }
         }
     }
 
@@ -213,6 +225,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         currentChatJob?.cancel()
         currentChatJob = null
         apiService.cancelChat()
+        streamingTts.stop()
         val updatedMessages = _state.value.messages.filter { !it.isLoading }
         _state.value = _state.value.copy(
             messages = updatedMessages,
@@ -247,7 +260,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun stopSpeaking() {
-        textToSpeech.stop()
+        streamingTts.stop()
         _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
     }
 
@@ -273,6 +286,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun clearChat() {
+        streamingTts.stop()
         textToSpeech.stop()
         _state.value = ChatUiState(
             hasApiKey = prefs.apiKey.isNotBlank(),
@@ -282,6 +296,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startNewConversation() {
+        streamingTts.stop()
         textToSpeech.stop()
         viewModelScope.launch(Dispatchers.Main.immediate) { saveCurrentConversation() }
         _state.value = _state.value.copy(

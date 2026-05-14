@@ -20,6 +20,12 @@ data class ChatResponse(
     val done: Boolean
 )
 
+data class ChatStreamChunk(
+    val model: String? = null,
+    val message: ChatMessage,
+    val done: Boolean = false
+)
+
 data class ModelInfo(
     val name: String
 )

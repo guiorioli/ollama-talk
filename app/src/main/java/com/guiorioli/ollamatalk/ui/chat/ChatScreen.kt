@@ -119,9 +119,13 @@ fun ChatScreen(
         uri?.toString()?.let { viewModel.onImagePicked(it) }
     }
 
-    LaunchedEffect(state.messages.size) {
-        if (state.messages.isNotEmpty()) {
-            listState.animateScrollToItem(state.messages.size - 1)
+    LaunchedEffect(state.messages.lastOrNull()?.content?.length) {
+        val lastIndex = state.messages.lastIndex
+        if (lastIndex >= 0) {
+            val isAtBottom = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == lastIndex
+            if (isAtBottom) {
+                listState.animateScrollToItem(lastIndex)
+            }
         }
     }
 
@@ -395,7 +399,7 @@ private fun MessageBubble(
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
-                if (message.isLoading) {
+                if (message.isLoading && message.content.isEmpty()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.height(24.dp)

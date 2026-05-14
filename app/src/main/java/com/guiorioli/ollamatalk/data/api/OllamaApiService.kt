@@ -6,6 +6,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.catch
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -70,6 +73,50 @@ class OllamaApiService {
     fun cancelChat() {
         currentCall?.cancel()
         currentCall = null
+    }
+
+    fun chatAsFlow(
+        model: String,
+        messages: List<ChatMessage>,
+        apiKey: String
+    ): Flow<String> = flow {
+        val requestBody = ChatRequest(
+            model = model,
+            messages = messages,
+            stream = true
+        )
+        val jsonBody = gson.toJson(requestBody)
+
+        val request = buildAuthorizedRequest("/api/chat", apiKey)
+            .post(jsonBody.toRequestBody(jsonMediaType))
+            .build()
+
+        val call = client.newCall(request)
+        currentCall = call
+
+        val response = call.execute()
+        if (!response.isSuccessful) {
+            throw IOException("Erro ${response.code}: ${response.message}")
+        }
+
+        val source = response.body?.source() ?: throw IOException("Empty body")
+        val fullTextBuilder = StringBuilder()
+
+        while (!source.exhausted()) {
+            val line = source.readUtf8Line() ?: break
+            if (line.isBlank()) continue
+            val chunk = gson.fromJson(line, ChatStreamChunk::class.java)
+            val content = chunk.message.content
+            if (content.isNotEmpty()) {
+                fullTextBuilder.append(content)
+                emit(content)
+            }
+            if (chunk.done) break
+        }
+        currentCall = null
+    }.catch { e ->
+        currentCall = null
+        throw e
     }
 
     fun listModels(apiKey: String): Result<List<ModelInfo>> {

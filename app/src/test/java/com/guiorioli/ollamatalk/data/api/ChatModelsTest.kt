@@ -94,4 +94,38 @@ class ChatModelsTest {
         assertEquals("gemma3:27b-cloud", tags.models?.get(0)?.name)
         assertEquals("llama3:8b", tags.models?.get(1)?.name)
     }
+
+    @Test
+    fun `ChatStreamChunk deserialization from streaming response`() {
+        val json = """{"model":"llama3","message":{"role":"assistant","content":"Hello"},"done":false}"""
+        val chunk = gson.fromJson(json, ChatStreamChunk::class.java)
+        assertEquals("llama3", chunk.model)
+        assertEquals("assistant", chunk.message.role)
+        assertEquals("Hello", chunk.message.content)
+        assertFalse(chunk.done)
+    }
+
+    @Test
+    fun `ChatStreamChunk final chunk with done true`() {
+        val json = """
+            {
+                "model": "llama3",
+                "message": {"role":"assistant","content":""},
+                "done": true,
+                "total_duration": 12345678
+            }
+        """.trimIndent()
+        val chunk = gson.fromJson(json, ChatStreamChunk::class.java)
+        assertTrue(chunk.done)
+        assertEquals("llama3", chunk.model)
+    }
+
+    @Test
+    fun `ChatStreamChunk empty content`() {
+        val json = """{"message":{"role":"assistant","content":""},"done":false}"""
+        val chunk = gson.fromJson(json, ChatStreamChunk::class.java)
+        assertEquals("", chunk.message.content)
+        assertFalse(chunk.done)
+        assertNull(chunk.model)
+    }
 }
