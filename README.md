@@ -1,10 +1,16 @@
 # Ollama Talk
 
-Android app for chatting with Ollama Cloud models, with voice support.
+Android app for chatting with Ollama Cloud models, with voice support, conversation history, image attachments, and rich Markdown rendering.
 
-## Download (Pre-built APK)
+## Download
 
-The latest compiled APK is available at:
+### Google Play Store (Closed Testing)
+
+The app is currently in **closed testing** on the Google Play Store and should be publicly available on Play Store **soon**.
+
+### Pre-built APK
+
+The latest compiled APK is also available at:
 
 ```
 dist/ollama-talk.apk
@@ -13,6 +19,20 @@ dist/ollama-talk.apk
 Just copy it to your Android device and install. No build required.
 
 ---
+
+## Features
+
+- **Chat with Ollama Cloud models** using your personal API key
+- **Conversation history** — save, rename, delete, and switch between multiple chat threads
+- **Voice input** — speak your messages using Android SpeechRecognizer
+- **Voice output** — listen to assistant responses via TextToSpeech, with auto-speak toggle
+- **Image attachments** — send photos to multimodal models (compressed and Base64-encoded)
+- **Rich Markdown rendering** — including code blocks, LaTeX math, HTML entities, and tables
+- **Copy messages** — copy individual messages (with Markdown stripped) or the entire conversation
+- **Cancel requests** — stop an in-flight assistant response at any time
+- **Dark & light themes** — follows the system theme automatically
+- **TTS language selector** — 5 supported languages
+- **Runtime microphone permission** — requested dynamically on Android 6+
 
 ## Tech Stack
 
@@ -25,14 +45,16 @@ Just copy it to your Android device and install. No build required.
 | Markdown | compose-markdown (JitPack) |
 | Voice (input) | SpeechRecognizer (Android SDK) |
 | Voice (output) | TextToSpeech (Android SDK) |
-| Storage | SharedPreferences |
+| Settings Storage | SharedPreferences |
+| Conversation Storage | JSON files in app-private directory |
 | Min SDK | 26 |
-| Target SDK | 34 |
+| Target SDK | 35 |
+| Compile SDK | 35 |
 
 ## Project Structure
 
 ```
-app/src/main/java/com/ollamachat/
+app/src/main/java/com/guiorioli/ollamatalk/
 ├── MainActivity.kt
 ├── OllamaTalkApp.kt
 ├── audio/
@@ -40,23 +62,42 @@ app/src/main/java/com/ollamachat/
 │   └── TextToSpeechManager.kt
 ├── data/
 │   ├── api/
-│   │   ├── OllamaApiService.kt
-│   │   ├── ChatRequest.kt
-│   │   └── ChatResponse.kt
+│   │   ├── ChatModels.kt          (ChatMessage, ChatRequest, ChatResponse, ModelInfo, TagsResponse)
+│   │   └── OllamaApiService.kt
 │   └── local/
+│       ├── Conversation.kt
+│       ├── ConversationIndexEntry.kt
+│       ├── ConversationManager.kt
 │       ├── PreferencesManager.kt
 │       └── TtsLanguage.kt
 ├── navigation/
-│   └── NavGraph.kt
+│   └── NavGraph.kt                (class: AppNavGraph)
 ├── ui/
 │   ├── chat/
 │   │   ├── ChatScreen.kt
 │   │   └── ChatViewModel.kt
-│   └── settings/
-│       ├── SettingsScreen.kt
-│       └── SettingsViewModel.kt
+│   ├── settings/
+│   │   ├── SettingsScreen.kt
+│   │   └── SettingsViewModel.kt
+│   └── theme/
+│       └── Theme.kt
 └── util/
+    ├── ImageUtils.kt
     └── MarkdownUtils.kt
+```
+
+## Tests
+
+Unit tests are located under `app/src/test/java/com/guiorioli/ollamatalk/`:
+
+- `data/api/ChatModelsTest.kt`
+- `data/local/TtsLanguageTest.kt`
+- `util/MarkdownUtilsTest.kt`
+
+Run them with:
+
+```bash
+./gradlew test
 ```
 
 ## How to Build
@@ -64,7 +105,7 @@ app/src/main/java/com/ollamachat/
 ### Prerequisites
 
 - **Java 17+** — A JDK 17 or higher is required. Android Studio ships with one at `android-studio/jbr/`.
-- **Android SDK** — with platform **android-34** and build-tools installed.
+- **Android SDK** — with platform **android-35** and build-tools installed.
 - **Gradle wrapper** — already included in the repository.
 
 ### Via Android Studio
@@ -91,5 +132,6 @@ The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
 1. Get an API Key at https://ollama.com/settings/keys
 2. Enter the key in **Settings** within the app
 3. Select your desired cloud model and TTS language
-4. Start chatting or use the voice button
+4. Start chatting, use the voice button, or attach an image
 5. Tap the speaker icon on any response to hear it read aloud
+6. Open the drawer to switch between saved conversations or start a new one
