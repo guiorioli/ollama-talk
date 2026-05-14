@@ -27,10 +27,12 @@ fun AppNavGraph(
         startDestination = Routes.CHAT
     ) {
         composable(Routes.CHAT) { entry ->
+            LaunchedEffect(Unit) {
+                chatViewModel.refreshSettingsState()
+            }
             val keySaved = entry.savedStateHandle.get<Boolean>("key_saved") ?: false
             LaunchedEffect(keySaved) {
                 if (keySaved) {
-                    chatViewModel.refreshSettingsState()
                     entry.savedStateHandle.remove<Boolean>("key_saved")
                 }
             }

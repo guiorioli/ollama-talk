@@ -100,6 +100,18 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         textToSpeech.onError = { utteranceId ->
             _state.value = _state.value.copy(isSpeaking = false, error = "TTS error")
         }
+        textToSpeech.onQueueEmpty = {
+            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
+        }
+        streamingTts.onStart = {
+            _state.value = _state.value.copy(isSpeaking = true)
+        }
+        streamingTts.onStop = {
+            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
+        }
+        streamingTts.onDone = {
+            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
+        }
     }
 
     fun onInputChanged(text: String) {

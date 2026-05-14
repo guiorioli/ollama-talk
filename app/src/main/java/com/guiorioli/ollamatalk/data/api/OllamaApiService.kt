@@ -62,7 +62,12 @@ class OllamaApiService {
                 val chatResponse = gson.fromJson(body, ChatResponse::class.java)
                 Result.success(chatResponse)
             } else {
-                Result.failure(IOException("Erro ${response.code}: ${response.message}"))
+                val message = when (response.code) {
+                    401 -> "Invalid API Key"
+                    403 -> "Access denied"
+                    else -> "Error ${response.code}: ${response.message}"
+                }
+                Result.failure(IOException(message))
             }
         } catch (e: Exception) {
             currentCall = null
@@ -96,7 +101,13 @@ class OllamaApiService {
 
         val response = call.execute()
         if (!response.isSuccessful) {
-            throw IOException("Erro ${response.code}: ${response.message}")
+            val message = when (response.code) {
+                401 -> "Invalid API Key. Please check your key in Settings."
+                403 -> "Access denied. Your API Key may be invalid or expired."
+                429 -> "Rate limit exceeded. Please wait a moment and try again."
+                else -> "Server error ${response.code}: ${response.message}"
+            }
+            throw IOException(message)
         }
 
         val source = response.body?.source() ?: throw IOException("Empty body")

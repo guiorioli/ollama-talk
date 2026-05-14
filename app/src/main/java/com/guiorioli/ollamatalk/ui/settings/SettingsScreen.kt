@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -35,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -63,6 +65,45 @@ fun SettingsScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showKey by remember { mutableStateOf(false) }
+    var showMoreInfo by remember { mutableStateOf(false) }
+
+    if (showMoreInfo) {
+        AlertDialog(
+            onDismissRequest = { showMoreInfo = false },
+            title = { Text("Why do I need an API Key?") },
+            text = {
+                Column {
+                    Text(
+                        "Ollama Talk connects to Ollama Cloud (ollama.com) to chat with AI models. " +
+                        "An API Key is required to authenticate your requests and ensure secure access to the service.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "You can get your free API Key by visiting:",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "https://ollama.com/settings/keys",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "Your key is stored locally on this device and is never shared with anyone else.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showMoreInfo = false }) {
+                    Text("Got it")
+                }
+            }
+        )
+    }
 
     LaunchedEffect(state.successMessage) {
         state.successMessage?.let {
@@ -138,16 +179,25 @@ fun SettingsScreen(
                 }
             )
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse("https://ollama.com/settings/keys"))
-                    context.startActivity(intent)
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                OutlinedButton(
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW)
+                            .setData(Uri.parse("https://ollama.com/settings/keys"))
+                        context.startActivity(intent)
+                    }
+                ) {
+                    Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Get API Key on website")
+                }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Get API Key on website")
+                TextButton(onClick = { showMoreInfo = true }) {
+                    Text("More info")
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

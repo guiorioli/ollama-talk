@@ -13,9 +13,11 @@ class TextToSpeechManager(context: Context) {
     private var pendingQueueMode: Int = TextToSpeech.QUEUE_FLUSH
     private var currentLocale: Locale = Locale("en", "US")
     private var utteranceCounter = 0L
+    private var pendingUtterances = 0
 
     var onDone: ((String) -> Unit)? = null
     var onError: ((String) -> Unit)? = null
+    var onQueueEmpty: (() -> Unit)? = null
 
     private val initListener = TextToSpeech.OnInitListener { status ->
         if (status == TextToSpeech.SUCCESS) {
@@ -36,10 +38,20 @@ class TextToSpeechManager(context: Context) {
                 if (uttId != null) {
                     onDone?.invoke(uttId)
                 }
+                pendingUtterances--
+                if (pendingUtterances <= 0) {
+                    pendingUtterances = 0
+                    onQueueEmpty?.invoke()
+                }
             }
             override fun onError(uttId: String?) {
                 if (uttId != null) {
                     onError?.invoke(uttId)
+                }
+                pendingUtterances--
+                if (pendingUtterances <= 0) {
+                    pendingUtterances = 0
+                    onQueueEmpty?.invoke()
                 }
             }
         })
@@ -69,7 +81,9 @@ class TextToSpeechManager(context: Context) {
     private fun doSpeak(text: String, queueMode: Int) {
         val utteranceId = "${UTTERANCE_PREFIX}_${++utteranceCounter}"
         val result = tts?.speak(text, queueMode, null, utteranceId)
-        if (result != TextToSpeech.SUCCESS) {
+        if (result == TextToSpeech.SUCCESS) {
+            pendingUtterances++
+        } else {
             onError?.invoke(utteranceId)
         }
     }
@@ -77,6 +91,7 @@ class TextToSpeechManager(context: Context) {
     fun stop() {
         tts?.stop()
         pendingText = null
+        pendingUtterances = 0
     }
 
     fun isSpeaking(): Boolean = tts?.isSpeaking ?: false

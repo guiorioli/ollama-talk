@@ -1,5 +1,9 @@
 package com.guiorioli.ollamatalk.ui.chat
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,8 +13,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -70,9 +76,6 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -237,28 +240,34 @@ fun ChatScreen(
                 )
             },
             bottomBar = {
-                ChatInputBar(
-                    inputText = state.inputText,
-                    isLoading = state.isLoading,
-                    isListening = state.isListening,
-                    pendingImageUri = state.pendingImageUri,
-                    onInputChanged = viewModel::onInputChanged,
-                    onSend = viewModel::sendMessage,
-                    onMicClick = {
-                        if (state.isListening) {
-                            viewModel.cancelVoiceInput()
-                        } else if (ContextCompat.checkSelfPermission(
-                                context, Manifest.permission.RECORD_AUDIO
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            viewModel.startListening()
-                        } else {
-                            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                        }
-                    },
-                    onAttachClick = { imagePickerLauncher.launch("image/*") },
-                    onClearImage = viewModel::clearPendingImage
-                )
+                Column(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                        .navigationBarsPadding()
+                ) {
+                    ChatInputBar(
+                        inputText = state.inputText,
+                        isLoading = state.isLoading,
+                        isListening = state.isListening,
+                        pendingImageUri = state.pendingImageUri,
+                        onInputChanged = viewModel::onInputChanged,
+                        onSend = viewModel::sendMessage,
+                        onMicClick = {
+                            if (state.isListening) {
+                                viewModel.cancelVoiceInput()
+                            } else if (ContextCompat.checkSelfPermission(
+                                    context, Manifest.permission.RECORD_AUDIO
+                                ) == PackageManager.PERMISSION_GRANTED
+                            ) {
+                                viewModel.startListening()
+                            } else {
+                                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        },
+                        onAttachClick = { imagePickerLauncher.launch("image/*") },
+                        onClearImage = viewModel::clearPendingImage
+                    )
+                }
             }
         ) { padding ->
             Box(
@@ -337,6 +346,46 @@ private fun EmptyChatHint() {
 
 @Composable
 private fun NoApiKeyOverlay(onOpenSettings: () -> Unit) {
+    var showInfoDialog by remember { mutableStateOf(false) }
+
+    if (showInfoDialog) {
+        AlertDialog(
+            onDismissRequest = { showInfoDialog = false },
+            title = { Text("Why do I need an API Key?") },
+            text = {
+                Column {
+                    Text(
+                        "Ollama Talk connects to Ollama Cloud (ollama.com) to chat with AI models. " +
+                        "An API Key is required to authenticate your requests and ensure secure access to the service.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "You can get your free API Key by visiting:",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "https://ollama.com/settings/keys",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "Your key is stored locally on this device and is never shared with anyone else.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showInfoDialog = false }) {
+                    Text("Got it")
+                }
+            }
+        )
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -362,6 +411,10 @@ private fun NoApiKeyOverlay(onOpenSettings: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = onOpenSettings) {
                     Text("Go to Settings")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(onClick = { showInfoDialog = true }) {
+                    Text("More info")
                 }
             }
         }
@@ -649,7 +702,8 @@ private fun ChatInputBar(
                 enabled = !isLoading,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = { if (!isLoading) onSend() }),
-                singleLine = true,
+                minLines = 1,
+                maxLines = 5,
                 shape = RoundedCornerShape(24.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))

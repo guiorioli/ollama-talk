@@ -12,6 +12,10 @@ class StreamingTtsManager(private val ttsManager: TextToSpeechManager) {
     private val sentenceBuffer = StringBuilder()
     private var isActive = false
 
+    var onStart: (() -> Unit)? = null
+    var onDone: (() -> Unit)? = null
+    var onStop: (() -> Unit)? = null
+
     /**
      * Inicia uma nova sessão de streaming TTS.
      * Limpa buffers e estado anterior.
@@ -19,6 +23,7 @@ class StreamingTtsManager(private val ttsManager: TextToSpeechManager) {
     fun start() {
         isActive = true
         sentenceBuffer.clear()
+        onStart?.invoke()
     }
 
     /**
@@ -44,6 +49,7 @@ class StreamingTtsManager(private val ttsManager: TextToSpeechManager) {
             ttsManager.speak(remainder, TextToSpeech.QUEUE_ADD)
         }
         sentenceBuffer.clear()
+        onDone?.invoke()
     }
 
     /**
@@ -54,7 +60,13 @@ class StreamingTtsManager(private val ttsManager: TextToSpeechManager) {
         isActive = false
         sentenceBuffer.clear()
         ttsManager.stop()
+        onStop?.invoke()
     }
+
+    /**
+     * Retorna se o streaming está ativo.
+     */
+    fun isActive(): Boolean = isActive
 
     /**
      * Verifica se há texto pendente no buffer mas ainda não enfileirado.
