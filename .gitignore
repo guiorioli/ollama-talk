@@ -23,3 +23,6 @@ key.properties
 
 # Plans
 /plans
+
+# Distribution (keep in git for now, ignore future changes)
+/dist
