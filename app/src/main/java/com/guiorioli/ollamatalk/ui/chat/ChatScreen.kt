@@ -174,7 +174,11 @@ fun ChatScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Ollama Talk") },
+                    title = {
+                        if (!state.isSpeaking) {
+                            Text("Ollama Talk")
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,

@@ -94,24 +94,20 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun setupTextToSpeech() {
-        textToSpeech.onDone = { utteranceId ->
-            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
-        }
-        textToSpeech.onError = { utteranceId ->
-            _state.value = _state.value.copy(isSpeaking = false, error = "TTS error")
-        }
-        textToSpeech.onQueueEmpty = {
-            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
-        }
-        streamingTts.onStart = {
-            _state.value = _state.value.copy(isSpeaking = true)
-        }
-        streamingTts.onStop = {
-            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
-        }
-        streamingTts.onDone = {
-            _state.value = _state.value.copy(isSpeaking = false, speakingMessageId = null)
-        }
+        textToSpeech.onDone = { updateSpeakingState() }
+        textToSpeech.onError = { updateSpeakingState() }
+        textToSpeech.onQueueEmpty = { updateSpeakingState() }
+        streamingTts.onStart = { updateSpeakingState() }
+        streamingTts.onStop = { updateSpeakingState() }
+        streamingTts.onDone = { updateSpeakingState() }
+    }
+
+    private fun updateSpeakingState() {
+        val isSpeaking = streamingTts.isActive() || textToSpeech.isSpeaking()
+        _state.value = _state.value.copy(
+            isSpeaking = isSpeaking,
+            speakingMessageId = if (isSpeaking) _state.value.speakingMessageId else null
+        )
     }
 
     fun onInputChanged(text: String) {
