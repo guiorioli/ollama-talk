@@ -122,16 +122,6 @@ fun ChatScreen(
         uri?.toString()?.let { viewModel.onImagePicked(it) }
     }
 
-    LaunchedEffect(state.messages.lastOrNull()?.content?.length) {
-        val lastIndex = state.messages.lastIndex
-        if (lastIndex >= 0) {
-            val isAtBottom = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == lastIndex
-            if (isAtBottom) {
-                listState.animateScrollToItem(lastIndex)
-            }
-        }
-    }
-
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
