@@ -244,10 +244,10 @@ class ChatModelsTest {
         }
         """
         val response = gson.fromJson(json, WebSearchResponse::class.java)
-        assertEquals(1, response.results.size)
-        assertEquals("AI News", response.results[0].title)
-        assertEquals("https://example.com/ai", response.results[0].url)
-        assertEquals("Latest AI developments", response.results[0].content)
+        assertEquals(1, response.results!!.size)
+        assertEquals("AI News", response.results!![0].title)
+        assertEquals("https://example.com/ai", response.results!![0].url)
+        assertEquals("Latest AI developments", response.results!![0].content)
     }
 
     @Test

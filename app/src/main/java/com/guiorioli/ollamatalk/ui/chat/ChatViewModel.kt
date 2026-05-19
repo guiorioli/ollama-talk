@@ -293,7 +293,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         val assistantUiMessage = ChatUiMessage(
                             id = messageIdCounter++,
                             role = "assistant",
-                            content = assistantMessage.content,
+                            content = assistantMessage.content ?: "",
                             isLoading = false
                         )
                         _state.value = _state.value.copy(
@@ -404,8 +404,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun formatSearchResults(response: WebSearchResponse): String {
-        if (response.results.isEmpty()) return "No results found."
-        return response.results.joinToString("\n\n") { result ->
+        val results = response.results
+        if (results.isNullOrEmpty()) return "No results found."
+        return results.joinToString("\n\n") { result ->
             "[${result.title}](${result.url})\n${result.content}"
         }
     }

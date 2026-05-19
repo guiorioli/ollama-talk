@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ChatMessage(
     val role: String,
-    val content: String,
+    val content: String?,
     val images: List<String>? = null,
     val tool_calls: List<ToolCall>? = null,
     val tool_name: String? = null
@@ -18,7 +18,7 @@ data class ChatRequest(
 )
 
 data class ChatResponse(
-    val model: String,
+    val model: String?,
     val message: ChatMessage,
     val done: Boolean
 )
@@ -81,5 +81,5 @@ data class WebSearchResult(
 )
 
 data class WebSearchResponse(
-    val results: List<WebSearchResult>
+    val results: List<WebSearchResult>?
 )

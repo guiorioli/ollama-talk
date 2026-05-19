@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ollama Talk</string>
+
+    <!-- Common -->
+    <string name="save">Salvar</string>
+    <string name="settings_saved">Configurações salvas</string>
+    <string name="cancel">Cancelar</string>
+    <string name="clear">Limpar</string>
+    <string name="ok">OK</string>
+    <string name="got_it">Entendi</string>
+    <string name="more_info">Mais informações</string>
+    <string name="back">Voltar</string>
+    <string name="settings">Configurações</string>
+    <string name="copy">Copiar</string>
+    <string name="stop">Parar</string>
+    <string name="send">Enviar</string>
+    <string name="speak">Falar</string>
+    <string name="listen">Ouvir</string>
+    <string name="copied">Copiado!</string>
+    <string name="notice">Aviso</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">Ollama Talk</string>
+    <string name="empty_chat_hint">Digite ou fale uma mensagem para começar</string>
+    <string name="type_message">Digite sua mensagem…</string>
+    <string name="thinking">Pensando…</string>
+    <string name="image_attached">Imagem anexada</string>
+    <string name="attached_image">Imagem anexada</string>
+    <string name="has_image">Tem imagem</string>
+    <string name="attach_image">Anexar imagem</string>
+    <string name="remove_image">Remover imagem</string>
+    <string name="searching_the_web">Pesquisando na web…</string>
+    <string name="analyzing_results">Analisando resultados…</string>
+    <string name="clear_chat">Limpar conversa</string>
+    <string name="clear_chat_title">Limpar conversa?</string>
+    <string name="clear_chat_message">Todas as mensagens serão removidas.</string>
+    <string name="copy_conversation">Copiar conversa</string>
+    <string name="conversation_copied">Conversa copiada!</string>
+    <string name="open_menu">Abrir menu</string>
+    <string name="stop_reading">Parar leitura</string>
+    <string name="disable_auto_read">Desativar leitura automática</string>
+    <string name="enable_auto_read">Ativar leitura automática</string>
+
+    <!-- Conversations Drawer -->
+    <string name="conversations">Conversas</string>
+    <string name="new_conversation">Nova conversa</string>
+    <string name="no_past_conversations">Nenhuma conversa anterior</string>
+    <string name="delete_conversation">Excluir conversa</string>
+
+    <!-- No API Key Overlay -->
+    <string name="no_api_key_title">Chave de API não configurada</string>
+    <string name="no_api_key_message">Vá em Configurações e insira sua Chave de API do Ollama Cloud.</string>
+    <string name="go_to_settings">Ir para Configurações</string>
+    <string name="api_key_info_title">Por que preciso de uma Chave de API?</string>
+    <string name="api_key_info_body">O Ollama Talk se conecta ao Ollama Cloud (ollama.com) para conversar com modelos de IA. Uma Chave de API é necessária para autenticar suas requisições e garantir acesso seguro ao serviço.\n\nVocê pode obter sua chave gratuita em https://ollama.com/settings/keys.\n\nSua chave é armazenada localmente neste dispositivo e nunca é compartilhada com terceiros.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Configurações</string>
+    <string name="api_key_label">Chave de API</string>
+    <string name="api_key_hint">Cole sua Chave de API aqui</string>
+    <string name="hide">Ocultar</string>
+    <string name="show">Mostrar</string>
+    <string name="get_api_key_website">Obter Chave no site</string>
+    <string name="model_label">Modelo</string>
+    <string name="loading_models">Carregando modelos…</string>
+    <string name="reload_models">Recarregar lista de modelos</string>
+    <string name="web_search">Pesquisa na Web</string>
+    <string name="enable_web_search">Ativar pesquisa na web</string>
+    <string name="web_search_description">Permite que o modelo pesquise na internet quando necessário</string>
+    <string name="web_search_compat_title">Compatibilidade de Pesquisa na Web</string>
+    <string name="web_search_compat_body">Este modelo não está na nossa lista verificada para pesquisa na web. A ferramenta será enviada ao modelo, mas pode ser ignorada. Quer tentar mesmo assim?</string>
+    <string name="try_anyway">Tentar mesmo assim</string>
+    <string name="keep_disabled">Manter desativado</string>
+    <string name="toggle_verify_compat">Ative para verificar compatibilidade</string>
+    <string name="checking_compatibility">Verificando compatibilidade…</string>
+    <string name="model_supports_web_search">✓ Este modelo suporta pesquisa na web</string>
+    <string name="model_not_verified_web_search">⚠ Este modelo não está verificado para pesquisa na web</string>
+    <string name="tts_language">Idioma do TTS</string>
+    <string name="default_model">Modelo padrão: gemma3:27b-cloud</string>
+    <string name="buy_me_coffee">Me pague um café! ☕</string>
+    <string name="recurring_donation">Doação recorrente 💚</string>
+
+    <!-- Errors / Toasts -->
+    <string name="error_no_api_key">Configure sua Chave de API em Configurações</string>
+    <string name="error_sending_message">Erro ao enviar mensagem</string>
+    <string name="error_unknown">Erro desconhecido</string>
+    <string name="error_mic_permission">Permissão do microfone é necessária para usar entrada de voz</string>
+    <string name="error_tts_not_installed">Dados de idioma TTS não instalados para %1$s</string>
+    <string name="error_loading_models">Erro ao carregar modelos: %1$s</string>
+    <string name="error_enter_api_key">Insira uma Chave de API</string>
+    <string name="error_invalid_api_key">Chave de API inválida. Verifique e tente novamente.</string>
+    <string name="error_invalid_api_key_settings">Chave de API inválida. Verifique sua chave em Configurações.</string>
+    <string name="error_access_denied">Acesso negado</string>
+    <string name="error_access_denied_expired">Acesso negado. Sua Chave de API pode estar inválida ou expirada.</string>
+    <string name="error_rate_limit">Limite de taxa excedido. Aguarde um momento e tente novamente.</string>
+    <string name="error_server">Erro do servidor %1$d: %2$s</string>
+    <string name="error_http">Erro %1$d: %2$s</string>
+    <string name="error_web_search">Erro na pesquisa na web %1$d: %2$s</string>
+    <string name="error_network">Erro de rede</string>
+    <string name="error_audio">Erro de áudio</string>
+    <string name="error_no_match">Não foi possível entender</string>
+    <string name="error_speech_timeout">Tempo esgotado para fala</string>
+    <string name="error_mic_not_granted">Permissão do microfone não concedida</string>
+    <string name="error_speech_recognition">Erro no reconhecimento de fala (%1$d)</string>
+    <string name="error_no_match_speech">Não foi possível reconhecer a fala</string>
+    <string name="error_tts_init">Erro ao inicializar sintetizador de fala</string>
+    <string name="error_no_text">Nenhum texto para ler</string>
+    <string name="error_search_failed">Não consegui completar a pesquisa. Por favor, tente novamente.</string>
+    <string name="no_results_found">Nenhum resultado encontrado.</string>
+
+    <!-- Copy conversation prefixes -->
+    <string name="copy_prefix_user">--- Usuário</string>
+    <string name="copy_prefix_assistant">--- Ollama (%1$s)</string>
+
+    <!-- Speech prompt -->
+    <string name="speech_prompt">Fale sua mensagem</string>
+
+    <!-- Tool call messages -->
+    <string name="tool_searched">🔍 Pesquisado: \'%1$s\'</string>
+</resources>

@@ -181,7 +181,7 @@ class OllamaApiService {
             if (line.isBlank()) continue
             val chunk = gson.fromJson(line, ChatStreamChunk::class.java)
             val content = chunk.message.content
-            if (content.isNotEmpty()) {
+            if (!content.isNullOrEmpty()) {
                 fullTextBuilder.append(content)
                 emit(content)
             }
