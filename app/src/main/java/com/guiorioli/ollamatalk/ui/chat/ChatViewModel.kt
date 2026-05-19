@@ -274,12 +274,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 while (iterations < maxToolIterations) {
                     iterations++
 
-                    val response = apiService.chat(
-                        model = prefs.selectedModel,
-                        messages = apiMessages,
-                        apiKey = apiKey,
-                        tools = listOf(OllamaApiService.WEB_SEARCH_TOOL)
-                    )
+                    val response = withContext(Dispatchers.IO) {
+                        apiService.chat(
+                            model = prefs.selectedModel,
+                            messages = apiMessages,
+                            apiKey = apiKey,
+                            tools = listOf(OllamaApiService.WEB_SEARCH_TOOL)
+                        )
+                    }
 
                     if (response.isFailure) {
                         throw response.exceptionOrNull() ?: IOException(getApplication<Application>().getString(R.string.error_unknown))
@@ -336,7 +338,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                                 val searchQuery = tc.function.arguments["query"] as? String ?: ""
                                 val maxResults = (tc.function.arguments["max_results"] as? Number)?.toInt() ?: 5
 
-                                val searchResult = apiService.webSearch(searchQuery, maxResults, apiKey)
+                                val searchResult = withContext(Dispatchers.IO) {
+                                    apiService.webSearch(searchQuery, maxResults, apiKey)
+                                }
 
                                 val toolResultContent = if (searchResult.isSuccess) {
                                     formatSearchResults(searchResult.getOrThrow())
