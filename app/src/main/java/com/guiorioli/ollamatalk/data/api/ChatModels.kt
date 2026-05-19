@@ -83,3 +83,15 @@ data class WebSearchResult(
 data class WebSearchResponse(
     val results: List<WebSearchResult>?
 )
+
+// --- Streaming Events for Tool Calling ---
+
+sealed class ChatStreamEvent {
+    data class TextChunk(val text: String) : ChatStreamEvent()
+    data class ToolCallDetected(
+        val toolCalls: List<ToolCall>,
+        val accumulatedContent: String
+    ) : ChatStreamEvent()
+    data class StreamError(val exception: Throwable) : ChatStreamEvent()
+    object Done : ChatStreamEvent()
+}

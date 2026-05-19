@@ -297,7 +297,7 @@ fun ChatScreen(
                                         clipboard.setPrimaryClip(ClipData.newPlainText("response", plainText))
                                         Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
                                     },
-                                    onCancelLoading = if (message.isLoading) viewModel::cancelMessage else null
+                                    onCancelLoading = if (message.isLoading || message.isStreaming) viewModel::cancelMessage else null
                                 )
                             }
                         }
@@ -491,7 +491,7 @@ private fun MessageBubble(
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
-                if (message.isLoading && message.content.isEmpty()) {
+                if ((message.isLoading || message.isStreaming) && message.content.isEmpty()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.height(24.dp)

@@ -9,6 +9,7 @@ import com.guiorioli.ollamatalk.audio.SpeechRecognizerManager
 import com.guiorioli.ollamatalk.audio.StreamingTtsManager
 import com.guiorioli.ollamatalk.audio.TextToSpeechManager
 import com.guiorioli.ollamatalk.data.api.ChatMessage
+import com.guiorioli.ollamatalk.data.api.ChatStreamEvent
 import com.guiorioli.ollamatalk.data.api.OllamaApiService
 import com.guiorioli.ollamatalk.data.api.ToolCall
 import com.guiorioli.ollamatalk.data.api.WebSearchResponse
@@ -39,7 +40,8 @@ data class ChatUiMessage(
     val content: String,
     val isLoading: Boolean = false,
     val hasImage: Boolean = false,
-    val toolCalls: List<com.guiorioli.ollamatalk.data.api.ToolCall>? = null
+    val toolCalls: List<com.guiorioli.ollamatalk.data.api.ToolCall>? = null,
+    val isStreaming: Boolean = false
 )
 
 data class ChatUiState(
@@ -274,108 +276,151 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 while (iterations < maxToolIterations) {
                     iterations++
 
-                    // Show loading bubble while waiting for model response
-                    val loadingId = messageIdCounter++
-                    val loadingMessage = ChatUiMessage(
-                        id = loadingId,
+                    // Create streaming assistant message placeholder
+                    val streamId = messageIdCounter++
+                    val streamMessage = ChatUiMessage(
+                        id = streamId,
                         role = "assistant",
                         content = "",
-                        isLoading = true
+                        isLoading = false,
+                        isStreaming = true
                     )
                     _state.value = _state.value.copy(
-                        messages = _state.value.messages + loadingMessage
+                        messages = _state.value.messages + streamMessage
                     )
 
-                    val response = withContext(Dispatchers.IO) {
-                        apiService.chat(
-                            model = prefs.selectedModel,
-                            messages = apiMessages,
-                            apiKey = apiKey,
-                            tools = listOf(OllamaApiService.WEB_SEARCH_TOOL)
+                    if (_state.value.isAutoSpeak) {
+                        streamingTts.start()
+                    }
+
+                    val accumulatedContent = StringBuilder()
+                    var toolCallsDetected: List<ToolCall>? = null
+
+                    apiService.chatAsFlowWithTools(
+                        model = prefs.selectedModel,
+                        messages = apiMessages,
+                        apiKey = apiKey,
+                        tools = listOf(OllamaApiService.WEB_SEARCH_TOOL)
+                    )
+                        .flowOn(Dispatchers.IO)
+                        .collect { event ->
+                            if (!isActive) return@collect
+
+                            when (event) {
+                                is ChatStreamEvent.TextChunk -> {
+                                    accumulatedContent.append(event.text)
+                                    val updatedMessages = _state.value.messages.map { msg ->
+                                        if (msg.id == streamId) {
+                                            msg.copy(content = msg.content + event.text)
+                                        } else msg
+                                    }
+                                    _state.value = _state.value.copy(messages = updatedMessages)
+                                    if (_state.value.isAutoSpeak) {
+                                        streamingTts.append(stripMarkdown(event.text))
+                                    }
+                                }
+                                is ChatStreamEvent.ToolCallDetected -> {
+                                    accumulatedContent.append(event.accumulatedContent)
+                                    toolCallsDetected = event.toolCalls
+                                }
+                                is ChatStreamEvent.Done -> {
+                                    // Normal completion, no tool call
+                                }
+                                is ChatStreamEvent.StreamError -> {
+                                    throw event.exception
+                                }
+                            }
+                        }
+
+                    // Streaming finished — determine next step
+                    val detectedTools = toolCallsDetected
+                    if (detectedTools != null) {
+                        // Tool call was detected during stream
+                        // Add assistant message (with content + tool_calls) to API history
+                        apiMessages.add(
+                            ChatMessage(
+                                role = "assistant",
+                                content = accumulatedContent.toString(),
+                                tool_calls = detectedTools
+                            )
                         )
-                    }
 
-                    if (response.isFailure) {
-                        throw response.exceptionOrNull() ?: IOException(getApplication<Application>().getString(R.string.error_unknown))
-                    }
+                        // Replace streaming bubble with tool indicator
+                        val messagesWithoutStream = _state.value.messages.filter { it.id != streamId }
+                        val firstToolCall = detectedTools.first()
+                        val query = firstToolCall.function.arguments["query"] as? String ?: ""
 
-                    val chatResponse = response.getOrThrow()
-                    val assistantMessage = chatResponse.message
+                        // If assistant also sent reasoning text before tool call, keep it
+                        var currentMessages = messagesWithoutStream
+                        val reasoningText = accumulatedContent.toString()
+                        if (reasoningText.isNotBlank()) {
+                            val reasoningMessage = ChatUiMessage(
+                                id = streamId,
+                                role = "assistant",
+                                content = reasoningText,
+                                isStreaming = false
+                            )
+                            currentMessages = currentMessages + reasoningMessage
+                        }
 
-                    // Check if model called a tool
-                    if (assistantMessage.tool_calls.isNullOrEmpty()) {
-                        // Final response — no tool calls
-                        val assistantUiMessage = ChatUiMessage(
-                            id = loadingId,
-                            role = "assistant",
-                            content = assistantMessage.content ?: "",
+                        val toolUiMessage = ChatUiMessage(
+                            id = messageIdCounter++,
+                            role = "tool",
+                            content = getApplication<Application>().getString(R.string.tool_searched, query),
                             isLoading = false
                         )
-                        val updatedMessages = _state.value.messages.map { msg ->
-                            if (msg.id == loadingId) assistantUiMessage else msg
+                        _state.value = _state.value.copy(
+                            messages = currentMessages + toolUiMessage,
+                            isWebSearching = true
+                        )
+
+                        // Execute each tool call
+                        for (tc in detectedTools) {
+                            when (tc.function.name) {
+                                "web_search" -> {
+                                    val searchQuery = tc.function.arguments["query"] as? String ?: ""
+                                    val maxResults = (tc.function.arguments["max_results"] as? Number)?.toInt() ?: 5
+
+                                    val searchResult = withContext(Dispatchers.IO) {
+                                        apiService.webSearch(searchQuery, maxResults, apiKey)
+                                    }
+
+                                    val toolResultContent = if (searchResult.isSuccess) {
+                                        formatSearchResults(searchResult.getOrThrow())
+                                    } else {
+                                        getApplication<Application>().getString(R.string.error_sending_message) + ": ${searchResult.exceptionOrNull()?.message}"
+                                    }
+
+                                    apiMessages.add(
+                                        ChatMessage(
+                                            role = "tool",
+                                            content = toolResultContent,
+                                            tool_name = "web_search"
+                                        )
+                                    )
+                                }
+                            }
+                        }
+
+                        _state.value = _state.value.copy(isWebSearching = false)
+
+                        // Continue loop for final response (also streamed)
+                    } else {
+                        // No tool call — this is the final response
+                        val finalMessages = _state.value.messages.map { msg ->
+                            if (msg.id == streamId) msg.copy(isStreaming = false) else msg
                         }
                         _state.value = _state.value.copy(
-                            messages = updatedMessages,
+                            messages = finalMessages,
                             isLoading = false,
                             isWebSearching = false
                         )
+                        if (_state.value.isAutoSpeak) {
+                            streamingTts.finish()
+                        }
                         success = true
                         break
                     }
-
-                    // Model called a tool — add tool_calls message to history
-                    apiMessages.add(
-                        ChatMessage(
-                            role = "assistant",
-                            content = assistantMessage.content ?: "",
-                            tool_calls = assistantMessage.tool_calls
-                        )
-                    )
-
-                    // Remove loading bubble and add tool call UI indicator
-                    val messagesWithoutLoading = _state.value.messages.filter { it.id != loadingId }
-                    val toolCall = assistantMessage.tool_calls.first()
-                    val query = toolCall.function.arguments["query"] as? String ?: ""
-                    val toolUiMessage = ChatUiMessage(
-                        id = messageIdCounter++,
-                        role = "tool",
-                        content = "🔍 Searched: '$query'",
-                        isLoading = false
-                    )
-                    _state.value = _state.value.copy(
-                        messages = messagesWithoutLoading + toolUiMessage,
-                        isWebSearching = true
-                    )
-
-                    // Execute each tool call
-                    for (tc in assistantMessage.tool_calls) {
-                        when (tc.function.name) {
-                            "web_search" -> {
-                                val searchQuery = tc.function.arguments["query"] as? String ?: ""
-                                val maxResults = (tc.function.arguments["max_results"] as? Number)?.toInt() ?: 5
-
-                                val searchResult = withContext(Dispatchers.IO) {
-                                    apiService.webSearch(searchQuery, maxResults, apiKey)
-                                }
-
-                                val toolResultContent = if (searchResult.isSuccess) {
-                                    formatSearchResults(searchResult.getOrThrow())
-                                } else {
-                                    getApplication<Application>().getString(R.string.error_sending_message) + ": ${searchResult.exceptionOrNull()?.message}"
-                                }
-
-                                apiMessages.add(
-                                    ChatMessage(
-                                        role = "tool",
-                                        content = toolResultContent,
-                                        tool_name = "web_search"
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    _state.value = _state.value.copy(isWebSearching = false)
                 }
 
                 if (!success && iterations >= maxToolIterations) {
@@ -397,7 +442,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 if (!isActive) return@launch
                 Log.e("ChatViewModel", "Tool chat error", e)
-                val updatedMessages = _state.value.messages.filter { !it.isLoading }
+                streamingTts.stop()
+                val updatedMessages = _state.value.messages.filter { !it.isLoading && !it.isStreaming }
                 val errorDetail = if (e is IOException) {
                     e.message ?: getApplication<Application>().getString(R.string.error_sending_message)
                 } else {
@@ -443,7 +489,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         currentChatJob = null
         apiService.cancelAllCalls()
         streamingTts.stop()
-        val updatedMessages = _state.value.messages.filter { !it.isLoading }
+        val updatedMessages = _state.value.messages.filter { !it.isLoading && !it.isStreaming }
         _state.value = _state.value.copy(
             messages = updatedMessages,
             isLoading = false,
@@ -591,7 +637,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun saveCurrentConversation() {
         val msgs = _state.value.messages
-            .filter { !it.isLoading && (it.content.isNotBlank() || it.hasImage) }
+            .filter { !it.isLoading && !it.isStreaming && (it.content.isNotBlank() || it.hasImage) }
         if (msgs.isEmpty()) return
 
         val id = _state.value.currentConversationId ?: return
@@ -626,7 +672,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private suspend fun saveIfHasMessages() {
-        val hasMessages = _state.value.messages.any { !it.isLoading && it.content.isNotBlank() }
+        val hasMessages = _state.value.messages.any { !it.isLoading && !it.isStreaming && it.content.isNotBlank() }
         if (!hasMessages) return
         val id = _state.value.currentConversationId
             ?: "${System.currentTimeMillis()}"

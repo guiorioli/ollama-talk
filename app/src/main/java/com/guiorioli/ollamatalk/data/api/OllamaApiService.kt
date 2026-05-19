@@ -201,6 +201,76 @@ class OllamaApiService {
         throw e
     }
 
+    fun chatAsFlowWithTools(
+        model: String,
+        messages: List<ChatMessage>,
+        apiKey: String,
+        tools: List<Tool>
+    ): Flow<ChatStreamEvent> = flow {
+        val requestBody = ChatRequest(
+            model = model,
+            messages = messages,
+            stream = true,
+            tools = tools
+        )
+        val jsonBody = gson.toJson(requestBody)
+
+        val request = buildAuthorizedRequest("/api/chat", apiKey)
+            .post(jsonBody.toRequestBody(jsonMediaType))
+            .build()
+
+        val call = client.newCall(request)
+        currentCall = call
+
+        val response = call.execute()
+        if (!response.isSuccessful) {
+            val message = when (response.code) {
+                401 -> "Invalid API Key. Please check your key in Settings."
+                403 -> "Access denied. Your API Key may be invalid or expired."
+                429 -> "Rate limit exceeded. Please wait a moment and try again."
+                else -> "Server error ${response.code}: ${response.message}"
+            }
+            throw IOException(message)
+        }
+
+        val source = response.body?.source() ?: throw IOException("Empty body")
+        val contentBuilder = StringBuilder()
+        var toolCallsDetected: List<ToolCall>? = null
+
+        while (!source.exhausted()) {
+            val line = source.readUtf8Line() ?: break
+            if (line.isBlank()) continue
+            val chunk = gson.fromJson(line, ChatStreamChunk::class.java)
+
+            // Detect tool_calls in any chunk
+            if (chunk.message.tool_calls != null && chunk.message.tool_calls.isNotEmpty()) {
+                toolCallsDetected = chunk.message.tool_calls
+            }
+
+            val content = chunk.message.content
+            if (!content.isNullOrEmpty()) {
+                contentBuilder.append(content)
+                emit(ChatStreamEvent.TextChunk(content))
+            }
+
+            if (chunk.done) {
+                if (toolCallsDetected != null) {
+                    emit(ChatStreamEvent.ToolCallDetected(
+                        toolCalls = toolCallsDetected,
+                        accumulatedContent = contentBuilder.toString()
+                    ))
+                } else {
+                    emit(ChatStreamEvent.Done)
+                }
+                break
+            }
+        }
+        currentCall = null
+    }.catch { e ->
+        currentCall = null
+        emit(ChatStreamEvent.StreamError(e))
+    }
+
     fun listModels(apiKey: String): Result<List<ModelInfo>> {
         val request = buildAuthorizedRequest("/api/tags", apiKey)
             .get()
