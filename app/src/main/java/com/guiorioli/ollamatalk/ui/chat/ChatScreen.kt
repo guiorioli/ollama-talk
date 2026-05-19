@@ -280,19 +280,55 @@ fun ChatScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(state.messages, key = { it.id }) { message ->
-                            MessageBubble(
-                                message = message,
-                                isSpeaking = state.speakingMessageId == message.id,
-                                onSpeak = { viewModel.speakMessage(message.content, message.id) },
-                                onStopSpeaking = viewModel::stopSpeaking,
-                                onCopy = {
-                                    val plainText = stripMarkdown(message.content)
-                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("response", plainText))
-                                    Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
-                                },
-                                onCancelLoading = if (message.isLoading) viewModel::cancelMessage else null
+                            if (message.role == "tool") {
+                                ToolMessageBubble(message = message)
+                            } else {
+                                MessageBubble(
+                                    message = message,
+                                    isSpeaking = state.speakingMessageId == message.id,
+                                    onSpeak = { viewModel.speakMessage(message.content, message.id) },
+                                    onStopSpeaking = viewModel::stopSpeaking,
+                                    onCopy = {
+                                        val plainText = stripMarkdown(message.content)
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                        clipboard.setPrimaryClip(ClipData.newPlainText("response", plainText))
+                                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                    },
+                                    onCancelLoading = if (message.isLoading) viewModel::cancelMessage else null
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (state.isWebSearching) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .align(Alignment.BottomCenter)
+                    ) {
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Searching the web...",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
                     }
                 }
@@ -411,6 +447,30 @@ private fun NoApiKeyOverlay(onOpenSettings: () -> Unit) {
                     Text("More info")
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ToolMessageBubble(message: ChatUiMessage) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)
+            )
+        ) {
+            Text(
+                text = message.content,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+            )
         }
     }
 }

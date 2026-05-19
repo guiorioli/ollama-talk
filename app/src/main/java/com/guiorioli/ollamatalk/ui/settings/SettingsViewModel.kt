@@ -24,8 +24,18 @@ data class SettingsUiState(
     val isSaving: Boolean = false,
     val successMessage: String? = null,
     val error: String? = null,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val webSearchEnabled: Boolean = false,
+    val isCheckingToolSupport: Boolean = false,
+    val modelToolSupportStatus: ToolSupportStatus = ToolSupportStatus.UNKNOWN,
+    val showCompatibilityDialog: Boolean = false
 )
+
+enum class ToolSupportStatus {
+    SUPPORTED,      // Model is in known list or verified by scraping
+    NOT_SUPPORTED,  // Scraping checked and model not found
+    UNKNOWN         // Not checked yet
+}
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -36,10 +46,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val state: StateFlow<SettingsUiState> = _state.asStateFlow()
 
     init {
+        val model = prefs.selectedModel
+        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model)
         _state.value = _state.value.copy(
             apiKey = prefs.apiKey,
-            selectedModel = prefs.selectedModel,
-            ttsLanguage = prefs.ttsLanguage
+            selectedModel = model,
+            ttsLanguage = prefs.ttsLanguage,
+            webSearchEnabled = prefs.webSearchEnabled,
+            modelToolSupportStatus = if (knownSupport) ToolSupportStatus.SUPPORTED else ToolSupportStatus.UNKNOWN
         )
     }
 
@@ -48,7 +62,86 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onModelSelected(model: String) {
-        _state.value = _state.value.copy(selectedModel = model)
+        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model)
+        val cachedSupport = prefs.isModelVerified(model)
+        val supportStatus = when {
+            knownSupport || cachedSupport -> ToolSupportStatus.SUPPORTED
+            else -> ToolSupportStatus.UNKNOWN
+        }
+        // If model changes to unverified, disable web search
+        val shouldDisableWebSearch = !knownSupport && !cachedSupport && _state.value.webSearchEnabled
+        _state.value = _state.value.copy(
+            selectedModel = model,
+            modelToolSupportStatus = supportStatus,
+            webSearchEnabled = if (shouldDisableWebSearch) false else _state.value.webSearchEnabled
+        )
+        if (shouldDisableWebSearch) {
+            prefs.webSearchEnabled = false
+        }
+    }
+
+    fun toggleWebSearch() {
+        val currentEnabled = _state.value.webSearchEnabled
+        if (currentEnabled) {
+            // Disable — no questions asked
+            prefs.webSearchEnabled = false
+            _state.value = _state.value.copy(webSearchEnabled = false)
+            return
+        }
+
+        // Trying to enable
+        val model = _state.value.selectedModel
+        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model)
+        val cachedSupport = prefs.isModelVerified(model)
+
+        if (knownSupport || cachedSupport) {
+            // Model is known/cached as supporting tools — enable directly
+            prefs.webSearchEnabled = true
+            _state.value = _state.value.copy(webSearchEnabled = true, modelToolSupportStatus = ToolSupportStatus.SUPPORTED)
+        } else {
+            // Model not verified — need to check
+            _state.value = _state.value.copy(isCheckingToolSupport = true)
+            viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    apiService.checkModelSupportsTools(model)
+                }
+                _state.value = _state.value.copy(isCheckingToolSupport = false)
+
+                result.fold(
+                    onSuccess = { isSupported ->
+                        if (isSupported) {
+                            prefs.addVerifiedModel(model)
+                            prefs.webSearchEnabled = true
+                            _state.value = _state.value.copy(
+                                webSearchEnabled = true,
+                                modelToolSupportStatus = ToolSupportStatus.SUPPORTED,
+                                showCompatibilityDialog = false
+                            )
+                        } else {
+                            _state.value = _state.value.copy(
+                                modelToolSupportStatus = ToolSupportStatus.NOT_SUPPORTED,
+                                showCompatibilityDialog = true
+                            )
+                        }
+                    },
+                    onFailure = {
+                        _state.value = _state.value.copy(
+                            modelToolSupportStatus = ToolSupportStatus.NOT_SUPPORTED,
+                            showCompatibilityDialog = true
+                        )
+                    }
+                )
+            }
+        }
+    }
+
+    fun confirmEnableWebSearch() {
+        prefs.webSearchEnabled = true
+        _state.value = _state.value.copy(webSearchEnabled = true, showCompatibilityDialog = false)
+    }
+
+    fun dismissCompatibilityDialog() {
+        _state.value = _state.value.copy(showCompatibilityDialog = false)
     }
 
     fun onTtsLanguageChanged(code: String) {
@@ -101,6 +194,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 prefs.apiKey = apiKey
                 prefs.selectedModel = _state.value.selectedModel
                 prefs.ttsLanguage = _state.value.ttsLanguage
+                prefs.webSearchEnabled = _state.value.webSearchEnabled
                 _state.value = _state.value.copy(
                     isSaving = false,
                     successMessage = "Settings saved",

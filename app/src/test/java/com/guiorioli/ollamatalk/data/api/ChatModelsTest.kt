@@ -128,4 +128,132 @@ class ChatModelsTest {
         assertFalse(chunk.done)
         assertNull(chunk.model)
     }
+
+    // --- Tool Calling Tests ---
+
+    @Test
+    fun `ChatMessage with tool_calls serializes correctly`() {
+        val toolCall = ToolCall(
+            function = ToolCallFunction(
+                name = "web_search",
+                arguments = mapOf("query" to "latest AI news", "max_results" to 5)
+            )
+        )
+        val msg = ChatMessage(
+            role = "assistant",
+            content = "",
+            tool_calls = listOf(toolCall)
+        )
+        val json = gson.toJson(msg)
+        assertTrue("JSON should contain tool_calls", json.contains("tool_calls"))
+        assertTrue("JSON should contain web_search", json.contains("web_search"))
+    }
+
+    @Test
+    fun `ChatMessage with tool_name serializes correctly`() {
+        val msg = ChatMessage(
+            role = "tool",
+            content = "Search results here",
+            tool_name = "web_search"
+        )
+        val json = gson.toJson(msg)
+        assertTrue("JSON should contain tool_name", json.contains("tool_name"))
+        assertTrue("JSON should contain web_search", json.contains("web_search"))
+    }
+
+    @Test
+    fun `ChatRequest with tools serializes correctly`() {
+        val tool = Tool(
+            function = ToolFunction(
+                name = "web_search",
+                description = "Search the web",
+                parameters = ToolParameters(
+                    required = listOf("query"),
+                    properties = mapOf(
+                        "query" to ToolProperty(type = "string", description = "The query")
+                    )
+                )
+            )
+        )
+        val request = ChatRequest(
+            model = "gemma3:27b-cloud",
+            messages = listOf(ChatMessage(role = "user", content = "Hello")),
+            stream = false,
+            tools = listOf(tool)
+        )
+        val json = gson.toJson(request)
+        assertTrue("JSON should contain tools", json.contains("tools"))
+        assertTrue("JSON should contain web_search", json.contains("web_search"))
+    }
+
+    @Test
+    fun `ChatResponse with tool_calls deserializes correctly`() {
+        val json = """
+        {
+            "model": "gemma3:27b-cloud",
+            "message": {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "function": {
+                            "name": "web_search",
+                            "arguments": {"query": "latest AI", "max_results": 5}
+                        }
+                    }
+                ]
+            },
+            "done": true
+        }
+        """
+        val response = gson.fromJson(json, ChatResponse::class.java)
+        assertNotNull(response.message.tool_calls)
+        assertEquals(1, response.message.tool_calls?.size)
+        assertEquals("web_search", response.message.tool_calls?.get(0)?.function?.name)
+        assertEquals("latest AI", response.message.tool_calls?.get(0)?.function?.arguments?.get("query"))
+    }
+
+    @Test
+    fun `Tool serialization produces valid JSON`() {
+        val tool = Tool(
+            function = ToolFunction(
+                name = "web_search",
+                description = "Search the web",
+                parameters = ToolParameters(
+                    required = listOf("query"),
+                    properties = mapOf(
+                        "query" to ToolProperty(type = "string", description = "The query"),
+                        "max_results" to ToolProperty(type = "integer", description = "Max results", default = 5)
+                    )
+                )
+            )
+        )
+        val json = gson.toJson(tool)
+        assertTrue("JSON should contain type:function", json.contains("function"))
+        assertTrue("JSON should contain name", json.contains("web_search"))
+        assertTrue("JSON should contain parameters", json.contains("parameters"))
+    }
+
+    @Test
+    fun `WebSearchResponse deserialization`() {
+        val json = """
+        {
+            "results": [
+                {"title": "AI News", "url": "https://example.com/ai", "content": "Latest AI developments"}
+            ]
+        }
+        """
+        val response = gson.fromJson(json, WebSearchResponse::class.java)
+        assertEquals(1, response.results.size)
+        assertEquals("AI News", response.results[0].title)
+        assertEquals("https://example.com/ai", response.results[0].url)
+        assertEquals("Latest AI developments", response.results[0].content)
+    }
+
+    @Test
+    fun `KNOWN_TOOLS_MODELS contains expected models`() {
+        assertTrue("gemma4 should be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("gemma4"))
+        assertTrue("kimi-k2.6 should be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("kimi-k2.6"))
+        assertFalse("unknown-model should not be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("unknown-model"))
+    }
 }

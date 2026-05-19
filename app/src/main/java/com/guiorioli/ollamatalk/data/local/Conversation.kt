@@ -10,5 +10,12 @@ data class Conversation(
 
 data class StoredMessage(
     val role: String,
-    val content: String
+    val content: String,
+    val tool_name: String? = null,
+    val tool_calls: List<StoredToolCall>? = null
+)
+
+data class StoredToolCall(
+    val name: String,
+    val arguments: Map<String, Any>
 )

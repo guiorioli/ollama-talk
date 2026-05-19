@@ -47,7 +47,7 @@ data class ConversationMessage(
 
 fun formatConversationText(messages: List<ConversationMessage>, model: String): String {
     return buildString {
-        messages.filter { !it.isLoading }.forEach { msg ->
+        messages.filter { !it.isLoading && it.role != "tool" }.forEach { msg ->
             val prefix = if (msg.role == "user") "--- User" else "--- Ollama ($model)"
             appendLine(prefix)
             val content = if (msg.hasImage) {

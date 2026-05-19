@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Switch
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -100,6 +101,31 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(onClick = { showMoreInfo = false }) {
                     Text("Got it")
+                }
+            }
+        )
+    }
+
+    if (state.showCompatibilityDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissCompatibilityDialog() },
+            title = { Text("Web Search Compatibility") },
+            text = {
+                Text(
+                    "This model is not in our verified list for web search. " +
+                    "The tool will be sent to the model, but it may be ignored. " +
+                    "Want to try anyway?",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.confirmEnableWebSearch() }) {
+                    Text("Try anyway")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissCompatibilityDialog() }) {
+                    Text("Keep disabled")
                 }
             }
         )
@@ -229,6 +255,78 @@ fun SettingsScreen(
                 Icon(Icons.Default.Refresh, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Reload model list")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Web Search Toggle
+            Text(
+                text = "Web Search",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Enable web search",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = "Allows the model to search the internet when needed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Switch(
+                    checked = state.webSearchEnabled,
+                    onCheckedChange = {
+                        viewModel.toggleWebSearch()
+                    },
+                    enabled = !state.isCheckingToolSupport
+                )
+            }
+
+            when (state.modelToolSupportStatus) {
+                ToolSupportStatus.SUPPORTED -> {
+                    Text(
+                        text = "✓ This model supports web search",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                ToolSupportStatus.NOT_SUPPORTED -> {
+                    Text(
+                        text = "⚠ This model is not verified for web search",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                ToolSupportStatus.UNKNOWN -> {
+                    if (!state.webSearchEnabled) {
+                        Text(
+                            text = "Toggle to verify compatibility",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            if (state.isCheckingToolSupport) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(modifier = Modifier.height(14.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Checking compatibility...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

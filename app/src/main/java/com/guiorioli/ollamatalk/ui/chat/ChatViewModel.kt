@@ -8,10 +8,13 @@ import com.guiorioli.ollamatalk.audio.StreamingTtsManager
 import com.guiorioli.ollamatalk.audio.TextToSpeechManager
 import com.guiorioli.ollamatalk.data.api.ChatMessage
 import com.guiorioli.ollamatalk.data.api.OllamaApiService
+import com.guiorioli.ollamatalk.data.api.ToolCall
+import com.guiorioli.ollamatalk.data.api.WebSearchResponse
 import com.guiorioli.ollamatalk.data.local.ConversationIndexEntry
 import com.guiorioli.ollamatalk.data.local.ConversationManager
 import com.guiorioli.ollamatalk.data.local.PreferencesManager
 import com.guiorioli.ollamatalk.data.local.StoredMessage
+import com.guiorioli.ollamatalk.data.local.StoredToolCall
 import com.guiorioli.ollamatalk.data.local.TtsLanguage
 import com.guiorioli.ollamatalk.util.ImageUtils
 import com.guiorioli.ollamatalk.util.formatConversationText
@@ -26,13 +29,15 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 data class ChatUiMessage(
     val id: Long,
     val role: String,
     val content: String,
     val isLoading: Boolean = false,
-    val hasImage: Boolean = false
+    val hasImage: Boolean = false,
+    val toolCalls: List<com.guiorioli.ollamatalk.data.api.ToolCall>? = null
 )
 
 data class ChatUiState(
@@ -48,7 +53,9 @@ data class ChatUiState(
     val conversations: List<ConversationIndexEntry> = emptyList(),
     val currentConversationId: String? = null,
     val pendingImageUri: String? = null,
-    val selectedModel: String = ""
+    val selectedModel: String = "",
+    val isWebSearching: Boolean = false,
+    val webSearchEnabled: Boolean = false
 )
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
@@ -63,7 +70,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         ChatUiState(
             hasApiKey = prefs.apiKey.isNotBlank(),
             conversations = conversationManager.listConversations(),
-            selectedModel = prefs.selectedModel
+            selectedModel = prefs.selectedModel,
+            webSearchEnabled = prefs.webSearchEnabled
         )
     )
     val state: StateFlow<ChatUiState> = _state.asStateFlow()
@@ -146,6 +154,21 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             hasImage = imageUri != null
         )
 
+        _state.value = _state.value.copy(
+            messages = _state.value.messages + userMessage,
+            inputText = "",
+            pendingImageUri = null,
+            error = null
+        )
+
+        if (_state.value.webSearchEnabled) {
+            processChatWithTools(text, imageUri, apiKey)
+        } else {
+            processChatNormal(text, imageUri, apiKey)
+        }
+    }
+
+    private fun processChatNormal(_text: String, imageUri: String?, apiKey: String) {
         val loadingMessage = ChatUiMessage(
             id = messageIdCounter++,
             role = "assistant",
@@ -154,11 +177,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         )
 
         _state.value = _state.value.copy(
-            messages = _state.value.messages + userMessage + loadingMessage,
-            inputText = "",
-            pendingImageUri = null,
-            isLoading = true,
-            error = null
+            messages = _state.value.messages + loadingMessage,
+            isLoading = true
         )
 
         currentChatJob = viewModelScope.launch {
@@ -229,10 +249,170 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    private fun processChatWithTools(_text: String, imageUri: String?, apiKey: String) {
+        currentChatJob = viewModelScope.launch {
+            val base64Image = if (imageUri != null) {
+                withContext(Dispatchers.IO) {
+                    val uri = android.net.Uri.parse(imageUri)
+                    val app = getApplication<Application>()
+                    ImageUtils.compressAndEncode(app, uri)
+                }
+            } else null
+
+            // Build conversation history for API
+            val apiMessages = buildApiMessages(base64Image)
+
+            _state.value = _state.value.copy(isLoading = true)
+
+            val maxToolIterations = 3
+            var iterations = 0
+            var success = false
+
+            try {
+                while (iterations < maxToolIterations) {
+                    iterations++
+
+                    val response = apiService.chat(
+                        model = prefs.selectedModel,
+                        messages = apiMessages,
+                        apiKey = apiKey,
+                        tools = listOf(OllamaApiService.WEB_SEARCH_TOOL)
+                    )
+
+                    if (response.isFailure) {
+                        throw response.exceptionOrNull() ?: IOException("Unknown error")
+                    }
+
+                    val chatResponse = response.getOrThrow()
+                    val assistantMessage = chatResponse.message
+
+                    // Check if model called a tool
+                    if (assistantMessage.tool_calls.isNullOrEmpty()) {
+                        // Final response — no tool calls
+                        val assistantUiMessage = ChatUiMessage(
+                            id = messageIdCounter++,
+                            role = "assistant",
+                            content = assistantMessage.content,
+                            isLoading = false
+                        )
+                        _state.value = _state.value.copy(
+                            messages = _state.value.messages + assistantUiMessage,
+                            isLoading = false,
+                            isWebSearching = false
+                        )
+                        success = true
+                        break
+                    }
+
+                    // Model called a tool — add tool_calls message to history
+                    apiMessages.add(
+                        ChatMessage(
+                            role = "assistant",
+                            content = assistantMessage.content,
+                            tool_calls = assistantMessage.tool_calls
+                        )
+                    )
+
+                    // Add tool call UI indicator
+                    val toolCall = assistantMessage.tool_calls.first()
+                    val query = toolCall.function.arguments["query"] as? String ?: ""
+                    val toolUiMessage = ChatUiMessage(
+                        id = messageIdCounter++,
+                        role = "tool",
+                        content = "🔍 Searched: '$query'",
+                        isLoading = false
+                    )
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + toolUiMessage,
+                        isWebSearching = true
+                    )
+
+                    // Execute each tool call
+                    for (tc in assistantMessage.tool_calls) {
+                        when (tc.function.name) {
+                            "web_search" -> {
+                                val searchQuery = tc.function.arguments["query"] as? String ?: ""
+                                val maxResults = (tc.function.arguments["max_results"] as? Number)?.toInt() ?: 5
+
+                                val searchResult = apiService.webSearch(searchQuery, maxResults, apiKey)
+
+                                val toolResultContent = if (searchResult.isSuccess) {
+                                    formatSearchResults(searchResult.getOrThrow())
+                                } else {
+                                    "Error performing web search: ${searchResult.exceptionOrNull()?.message}"
+                                }
+
+                                apiMessages.add(
+                                    ChatMessage(
+                                        role = "tool",
+                                        content = toolResultContent,
+                                        tool_name = "web_search"
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    _state.value = _state.value.copy(isWebSearching = false)
+                }
+
+                if (!success && iterations >= maxToolIterations) {
+                    // Max iterations reached without final response
+                    val errorMsg = ChatUiMessage(
+                        id = messageIdCounter++,
+                        role = "assistant",
+                        content = "I couldn't complete the search. Please try again.",
+                        isLoading = false
+                    )
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + errorMsg,
+                        isLoading = false,
+                        isWebSearching = false
+                    )
+                }
+
+                saveCurrentConversation()
+            } catch (e: Exception) {
+                if (!isActive) return@launch
+                val updatedMessages = _state.value.messages.filter { !it.isLoading }
+                _state.value = _state.value.copy(
+                    messages = updatedMessages,
+                    isLoading = false,
+                    isWebSearching = false,
+                    error = e.message ?: "Error sending message"
+                )
+                currentChatJob = null
+            }
+        }
+    }
+
+    private fun buildApiMessages(base64Image: String?): MutableList<ChatMessage> {
+        val messages = _state.value.messages
+            .filter { it.role != "tool" }
+            .map { msg -> ChatMessage(role = msg.role, content = msg.content) }
+            .toMutableList()
+
+        if (base64Image != null && messages.isNotEmpty()) {
+            val lastIdx = messages.size - 1
+            if (messages[lastIdx].role == "user") {
+                messages[lastIdx] = messages[lastIdx].copy(images = listOf(base64Image))
+            }
+        }
+
+        return messages
+    }
+
+    private fun formatSearchResults(response: WebSearchResponse): String {
+        if (response.results.isEmpty()) return "No results found."
+        return response.results.joinToString("\n\n") { result ->
+            "[${result.title}](${result.url})\n${result.content}"
+        }
+    }
+
     fun cancelMessage() {
         currentChatJob?.cancel()
         currentChatJob = null
-        apiService.cancelChat()
+        apiService.cancelAllCalls()
         streamingTts.stop()
         val updatedMessages = _state.value.messages.filter { !it.isLoading }
         _state.value = _state.value.copy(
@@ -289,7 +469,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun refreshSettingsState() {
         _state.value = _state.value.copy(
             hasApiKey = prefs.apiKey.isNotBlank(),
-            selectedModel = prefs.selectedModel
+            selectedModel = prefs.selectedModel,
+            webSearchEnabled = prefs.webSearchEnabled
         )
     }
 
@@ -351,7 +532,21 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val cleanContent = if (hasImage) {
                     stored.content.removePrefix("[Image] ").removePrefix("[Image]")
                 } else stored.content
-                ChatUiMessage(id = messageIdCounter++, role = stored.role, content = cleanContent, hasImage = hasImage)
+                val uiToolCalls = stored.tool_calls?.map { tc ->
+                    ToolCall(
+                        function = com.guiorioli.ollamatalk.data.api.ToolCallFunction(
+                            name = tc.name,
+                            arguments = tc.arguments
+                        )
+                    )
+                }
+                ChatUiMessage(
+                    id = messageIdCounter++,
+                    role = stored.role,
+                    content = cleanContent,
+                    hasImage = hasImage,
+                    toolCalls = uiToolCalls
+                )
             }
             _state.value = _state.value.copy(
                 messages = messages,
@@ -379,7 +574,17 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     val storedContent = if (it.hasImage) {
                         if (it.content.isBlank()) "[Image]" else "[Image] ${it.content}"
                     } else it.content
-                    StoredMessage(role = it.role, content = storedContent)
+                    val storedToolCalls = it.toolCalls?.map { tc ->
+                        StoredToolCall(
+                            name = tc.function.name,
+                            arguments = tc.function.arguments
+                        )
+                    }
+                    StoredMessage(
+                        role = it.role,
+                        content = storedContent,
+                        tool_calls = storedToolCalls
+                    )
                 },
                 model = prefs.selectedModel
             )

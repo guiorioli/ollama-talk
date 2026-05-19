@@ -126,6 +126,23 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - The user's message remains in the chat history
 - Visual feedback: the loading bubble disappears and the input field becomes enabled again
 
+### FR20 — Web Search Tool Calling
+- User can enable "web search" in Settings as a toggle switch
+- When enabled, the Ollama API receives a `tools` array with a `web_search` function definition
+- The model decides independently whether a user query requires a web search
+- If the model calls the tool, the app executes a `POST /api/web_search` call with the query
+- Results are formatted and sent back as a `role: "tool"` message in the conversation history
+- The model then generates a final response based on the search results
+- Maximum 3 tool call iterations per message to prevent infinite loops
+- Visual indicators show "Searching the web..." and "Analyzing results..." during tool execution
+- Tool calling is disabled by default to avoid unnecessary latency
+- Model compatibility: hardcoded list of known cloud models that support tools
+- For models outside the list, a scraping check against `https://ollama.com/search?c=cloud&c=tools` is performed only when the user attempts to enable the toggle
+- If the scraping check fails, a dialog asks the user if they want to try anyway
+- Messages with `role: "tool"` and `tool_calls` are persisted in conversation history
+- Tool call messages are displayed as discrete bubbles in the chat UI (e.g., "🔍 Searched: 'query'")
+- TTS does not read tool messages aloud
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build
