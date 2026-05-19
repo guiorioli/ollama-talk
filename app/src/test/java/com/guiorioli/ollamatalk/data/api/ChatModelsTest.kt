@@ -253,7 +253,22 @@ class ChatModelsTest {
     @Test
     fun `KNOWN_TOOLS_MODELS contains expected models`() {
         assertTrue("gemma4 should be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("gemma4"))
+        assertTrue("gemma3 should be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("gemma3"))
+        assertTrue("gpt-oss should be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("gpt-oss"))
         assertTrue("kimi-k2.6 should be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("kimi-k2.6"))
         assertFalse("unknown-model should not be in known models", OllamaApiService.KNOWN_TOOLS_MODELS.contains("unknown-model"))
+    }
+
+    @Test
+    fun `ChatMessage content can be null`() {
+        val msg = ChatMessage(role = "assistant", content = null, tool_calls = emptyList())
+        assertNull(msg.content)
+    }
+
+    @Test
+    fun `ChatResponse model can be null`() {
+        val json = """{"message":{"role":"assistant","content":""},"done":true}"""
+        val response = gson.fromJson(json, ChatResponse::class.java)
+        assertNull(response.model)
     }
 }

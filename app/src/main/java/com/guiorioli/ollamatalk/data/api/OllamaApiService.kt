@@ -1,5 +1,6 @@
 package com.guiorioli.ollamatalk.data.api
 
+import android.util.Log
 import com.google.gson.Gson
 import okhttp3.Call
 import okhttp3.MediaType.Companion.toMediaType
@@ -26,13 +27,15 @@ class OllamaApiService {
     companion object {
         private const val BASE_URL = "https://ollama.com"
 
-        // Hardcoded list of known cloud models that support tool calling
-        // Verified against https://ollama.com/search?c=cloud&c=tools on 2026-05-18
+        // Hardcoded list of known cloud models that support tool calling.
+        // These are BASE names (without :tag suffixes) as they appear in Ollama search results.
+        // Verified against https://ollama.com/search?c=cloud&c=tools on 2026-05-19
         val KNOWN_TOOLS_MODELS = setOf(
             "kimi-k2.6",
             "deepseek-v4-flash",
             "deepseek-v4-pro",
             "gemma4",
+            "gemma3",
             "qwen3.5",
             "glm-5.1",
             "minimax-m2.7",
@@ -48,7 +51,8 @@ class OllamaApiService {
             "devstral-small-2",
             "qwen3-next",
             "nemotron-3-nano",
-            "rnj-1"
+            "rnj-1",
+            "gpt-oss"
         )
 
         val WEB_SEARCH_TOOL = Tool(
@@ -113,15 +117,19 @@ class OllamaApiService {
                 val chatResponse = gson.fromJson(body, ChatResponse::class.java)
                 Result.success(chatResponse)
             } else {
+                val errorBody = body ?: response.message
+                Log.e("OllamaApiService", "Chat error ${response.code}: $errorBody")
                 val message = when (response.code) {
                     401 -> "Invalid API Key"
                     403 -> "Access denied"
+                    400 -> "Bad Request: $errorBody"
                     else -> "Error ${response.code}: ${response.message}"
                 }
                 Result.failure(IOException(message))
             }
         } catch (e: Exception) {
             currentCall = null
+            Log.e("OllamaApiService", "Chat exception", e)
             Result.failure(e)
         }
     }
@@ -252,8 +260,11 @@ class OllamaApiService {
 
     fun checkModelSupportsTools(modelName: String): Result<Boolean> {
         return try {
+            // Use base name (strip tag after ":") for search query,
+            // because Ollama search results show model families without tags.
+            val baseName = modelName.substringBefore(":")
             val request = Request.Builder()
-                .url("$BASE_URL/search?c=cloud&c=tools")
+                .url("$BASE_URL/search?c=cloud&c=tools&q=$baseName")
                 .header("User-Agent", "OllamaTalk/1.0")
                 .get()
                 .build()
@@ -261,10 +272,12 @@ class OllamaApiService {
             val response = client.newCall(request).execute()
             val body = response.body?.string() ?: return Result.failure(IOException("Empty response body"))
 
-            // Simple check: is the model name contained anywhere in the HTML?
-            val isSupported = body.contains("/library/$modelName", ignoreCase = true)
+            // Check if the base model name appears as a library link
+            val isSupported = body.contains("/library/$baseName", ignoreCase = true)
+            Log.d("OllamaApiService", "Tool support check for $modelName (base=$baseName): $isSupported")
             Result.success(isSupported)
         } catch (e: Exception) {
+            Log.e("OllamaApiService", "Tool support check failed", e)
             Result.failure(e)
         }
     }

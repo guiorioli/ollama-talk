@@ -48,7 +48,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     init {
         val model = prefs.selectedModel
-        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model)
+        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model.substringBefore(":"))
         _state.value = _state.value.copy(
             apiKey = prefs.apiKey,
             selectedModel = model,
@@ -63,7 +63,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun onModelSelected(model: String) {
-        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model)
+        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model.substringBefore(":"))
         val cachedSupport = prefs.isModelVerified(model)
         val supportStatus = when {
             knownSupport || cachedSupport -> ToolSupportStatus.SUPPORTED
@@ -92,7 +92,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         // Trying to enable
         val model = _state.value.selectedModel
-        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model)
+        val knownSupport = OllamaApiService.KNOWN_TOOLS_MODELS.contains(model.substringBefore(":"))
         val cachedSupport = prefs.isModelVerified(model)
 
         if (knownSupport || cachedSupport) {
@@ -163,7 +163,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             result.fold(
                 onSuccess = { models ->
                     _state.value = _state.value.copy(
-                        availableModels = models,
+                        availableModels = models.sortedBy { it.name },
                         isLoadingModels = false
                     )
                 },

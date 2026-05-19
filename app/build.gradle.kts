@@ -20,8 +20,8 @@ android {
         applicationId = "com.guiorioli.ollamatalk"
         minSdk = 26
         targetSdk = 35
-        versionCode = 21
-        versionName = "2.7.1"
+        versionCode = 22
+        versionName = "2.7.2"
     }
 
     signingConfigs {

@@ -1,6 +1,7 @@
 package com.guiorioli.ollamatalk.ui.chat
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.guiorioli.ollamatalk.R
@@ -309,7 +310,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     apiMessages.add(
                         ChatMessage(
                             role = "assistant",
-                            content = assistantMessage.content,
+                            content = assistantMessage.content ?: "",
                             tool_calls = assistantMessage.tool_calls
                         )
                     )
@@ -375,12 +376,18 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 saveCurrentConversation()
             } catch (e: Exception) {
                 if (!isActive) return@launch
+                Log.e("ChatViewModel", "Tool chat error", e)
                 val updatedMessages = _state.value.messages.filter { !it.isLoading }
+                val errorDetail = if (e is IOException) {
+                    e.message ?: getApplication<Application>().getString(R.string.error_sending_message)
+                } else {
+                    "${e.javaClass.simpleName}: ${e.message ?: getApplication<Application>().getString(R.string.error_sending_message)}"
+                }
                 _state.value = _state.value.copy(
                     messages = updatedMessages,
                     isLoading = false,
                     isWebSearching = false,
-                    error = e.message ?: "Error sending message"
+                    error = errorDetail
                 )
                 currentChatJob = null
             }
