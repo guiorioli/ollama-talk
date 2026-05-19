@@ -23,15 +23,19 @@ Just copy it to your Android device and install. No build required.
 ## Features
 
 - **Chat with Ollama Cloud models** using your personal API key
+- **Real-time streaming** — assistant responses appear word-by-word as they are generated
+- **Web search tool calling** — let the AI search the internet for current information with visual indicators
 - **Conversation history** — save, rename, delete, and switch between multiple chat threads
 - **Voice input** — speak your messages using Android SpeechRecognizer
 - **Voice output** — listen to assistant responses via TextToSpeech, with auto-speak toggle
 - **Image attachments** — send photos to multimodal models (compressed and Base64-encoded)
 - **Rich Markdown rendering** — including code blocks, LaTeX math, HTML entities, and tables
-- **Copy messages** — copy individual messages (with Markdown stripped) or the entire conversation
+- **Copy messages** — copy individual messages or the entire conversation (Markdown stripped)
+- **Text selection** — select and copy partial text from assistant responses
 - **Cancel requests** — stop an in-flight assistant response at any time
 - **Dark & light themes** — follows the system theme automatically
-- **TTS language selector** — 5 supported languages
+- **TTS language selector** — 14 supported languages
+- **UI localization** — English, Portuguese (BR), Italian, Russian, Dutch, Japanese, Korean, Mandarin Chinese
 - **Runtime microphone permission** — requested dynamically on Android 6+
 
 ## Tech Stack
@@ -59,10 +63,11 @@ app/src/main/java/com/guiorioli/ollamatalk/
 ├── OllamaTalkApp.kt
 ├── audio/
 │   ├── SpeechRecognizerManager.kt
+│   ├── StreamingTtsManager.kt
 │   └── TextToSpeechManager.kt
 ├── data/
 │   ├── api/
-│   │   ├── ChatModels.kt          (ChatMessage, ChatRequest, ChatResponse, ModelInfo, TagsResponse)
+│   │   ├── ChatModels.kt          (ChatMessage, ChatRequest, ChatResponse, ChatStreamEvent, Tool, ModelInfo, TagsResponse)
 │   │   └── OllamaApiService.kt
 │   └── local/
 │       ├── Conversation.kt
@@ -91,6 +96,7 @@ app/src/main/java/com/guiorioli/ollamatalk/
 Unit tests are located under `app/src/test/java/com/guiorioli/ollamatalk/`:
 
 - `data/api/ChatModelsTest.kt`
+- `data/api/ChatStreamEventTest.kt`
 - `data/local/TtsLanguageTest.kt`
 - `util/MarkdownUtilsTest.kt`
 
