@@ -274,6 +274,18 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 while (iterations < maxToolIterations) {
                     iterations++
 
+                    // Show loading bubble while waiting for model response
+                    val loadingId = messageIdCounter++
+                    val loadingMessage = ChatUiMessage(
+                        id = loadingId,
+                        role = "assistant",
+                        content = "",
+                        isLoading = true
+                    )
+                    _state.value = _state.value.copy(
+                        messages = _state.value.messages + loadingMessage
+                    )
+
                     val response = withContext(Dispatchers.IO) {
                         apiService.chat(
                             model = prefs.selectedModel,
@@ -294,13 +306,16 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     if (assistantMessage.tool_calls.isNullOrEmpty()) {
                         // Final response — no tool calls
                         val assistantUiMessage = ChatUiMessage(
-                            id = messageIdCounter++,
+                            id = loadingId,
                             role = "assistant",
                             content = assistantMessage.content ?: "",
                             isLoading = false
                         )
+                        val updatedMessages = _state.value.messages.map { msg ->
+                            if (msg.id == loadingId) assistantUiMessage else msg
+                        }
                         _state.value = _state.value.copy(
-                            messages = _state.value.messages + assistantUiMessage,
+                            messages = updatedMessages,
                             isLoading = false,
                             isWebSearching = false
                         )
@@ -317,7 +332,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         )
                     )
 
-                    // Add tool call UI indicator
+                    // Remove loading bubble and add tool call UI indicator
+                    val messagesWithoutLoading = _state.value.messages.filter { it.id != loadingId }
                     val toolCall = assistantMessage.tool_calls.first()
                     val query = toolCall.function.arguments["query"] as? String ?: ""
                     val toolUiMessage = ChatUiMessage(
@@ -327,7 +343,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         isLoading = false
                     )
                     _state.value = _state.value.copy(
-                        messages = _state.value.messages + toolUiMessage,
+                        messages = messagesWithoutLoading + toolUiMessage,
                         isWebSearching = true
                     )
 

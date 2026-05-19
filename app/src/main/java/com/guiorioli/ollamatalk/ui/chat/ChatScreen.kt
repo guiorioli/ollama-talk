@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -538,10 +539,19 @@ private fun MessageBubble(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    MarkdownText(
-                        markdown = preProcessMarkdownForDisplay(message.content),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    if (isUser) {
+                        MarkdownText(
+                            markdown = preProcessMarkdownForDisplay(message.content),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    } else {
+                        SelectionContainer {
+                            MarkdownText(
+                                markdown = preProcessMarkdownForDisplay(message.content),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
                     if (message.content.isNotBlank()) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
