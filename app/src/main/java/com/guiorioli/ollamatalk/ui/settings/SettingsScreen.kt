@@ -50,9 +50,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.guiorioli.ollamatalk.R
 import com.guiorioli.ollamatalk.data.local.TtsLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,36 +73,18 @@ fun SettingsScreen(
     if (showMoreInfo) {
         AlertDialog(
             onDismissRequest = { showMoreInfo = false },
-            title = { Text("Why do I need an API Key?") },
+            title = { Text(stringResource(R.string.api_key_info_title)) },
             text = {
                 Column {
                     Text(
-                        "Ollama Talk connects to Ollama Cloud (ollama.com) to chat with AI models. " +
-                        "An API Key is required to authenticate your requests and ensure secure access to the service.",
+                        stringResource(R.string.api_key_info_body),
                         style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        "You can get your free API Key by visiting:",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "https://ollama.com/settings/keys",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        "Your key is stored locally on this device and is never shared with anyone else.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showMoreInfo = false }) {
-                    Text("Got it")
+                    Text(stringResource(R.string.got_it))
                 }
             }
         )
@@ -109,23 +93,21 @@ fun SettingsScreen(
     if (state.showCompatibilityDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissCompatibilityDialog() },
-            title = { Text("Web Search Compatibility") },
+            title = { Text(stringResource(R.string.web_search_compat_title)) },
             text = {
                 Text(
-                    "This model is not in our verified list for web search. " +
-                    "The tool will be sent to the model, but it may be ignored. " +
-                    "Want to try anyway?",
+                    stringResource(R.string.web_search_compat_body),
                     style = MaterialTheme.typography.bodyMedium
                 )
             },
             confirmButton = {
                 TextButton(onClick = { viewModel.confirmEnableWebSearch() }) {
-                    Text("Try anyway")
+                    Text(stringResource(R.string.try_anyway))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissCompatibilityDialog() }) {
-                    Text("Keep disabled")
+                    Text(stringResource(R.string.keep_disabled))
                 }
             }
         )
@@ -154,12 +136,12 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -180,7 +162,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "API Key",
+                text = stringResource(R.string.api_key_label),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -188,7 +170,7 @@ fun SettingsScreen(
                 value = state.apiKey,
                 onValueChange = viewModel::onApiKeyChanged,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Paste your API Key here") },
+                placeholder = { Text(stringResource(R.string.api_key_hint)) },
                 visualTransformation = if (showKey)
                     VisualTransformation.None
                 else
@@ -199,7 +181,7 @@ fun SettingsScreen(
                         Icon(
                             if (showKey) Icons.Default.VisibilityOff
                             else Icons.Default.Visibility,
-                            contentDescription = if (showKey) "Hide" else "Show"
+                            contentDescription = if (showKey) stringResource(R.string.hide) else stringResource(R.string.show)
                         )
                     }
                 }
@@ -218,18 +200,18 @@ fun SettingsScreen(
                 ) {
                     Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Get API Key on website")
+                    Text(stringResource(R.string.get_api_key_website))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 TextButton(onClick = { showMoreInfo = true }) {
-                    Text("More info")
+                    Text(stringResource(R.string.more_info))
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Model",
+                text = stringResource(R.string.model_label),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -238,7 +220,7 @@ fun SettingsScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(modifier = Modifier.height(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Loading models…")
+                    Text(stringResource(R.string.loading_models))
                 }
             }
 
@@ -254,14 +236,14 @@ fun SettingsScreen(
             OutlinedButton(onClick = viewModel::loadModels) {
                 Icon(Icons.Default.Refresh, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Reload model list")
+                Text(stringResource(R.string.reload_models))
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // Web Search Toggle
             Text(
-                text = "Web Search",
+                text = stringResource(R.string.web_search),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -272,11 +254,11 @@ fun SettingsScreen(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Enable web search",
+                        text = stringResource(R.string.enable_web_search),
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Text(
-                        text = "Allows the model to search the internet when needed",
+                        text = stringResource(R.string.web_search_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -293,14 +275,14 @@ fun SettingsScreen(
             when (state.modelToolSupportStatus) {
                 ToolSupportStatus.SUPPORTED -> {
                     Text(
-                        text = "✓ This model supports web search",
+                        text = stringResource(R.string.model_supports_web_search),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
                 ToolSupportStatus.NOT_SUPPORTED -> {
                     Text(
-                        text = "⚠ This model is not verified for web search",
+                        text = stringResource(R.string.model_not_verified_web_search),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -308,7 +290,7 @@ fun SettingsScreen(
                 ToolSupportStatus.UNKNOWN -> {
                     if (!state.webSearchEnabled) {
                         Text(
-                            text = "Toggle to verify compatibility",
+                            text = stringResource(R.string.toggle_verify_compat),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -322,7 +304,7 @@ fun SettingsScreen(
                     CircularProgressIndicator(modifier = Modifier.height(14.dp), strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "Checking compatibility...",
+                        stringResource(R.string.checking_compatibility),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -332,7 +314,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "TTS Language",
+                text = stringResource(R.string.tts_language),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -359,13 +341,13 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
 
             if (!state.isSaved) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Default model: gemma3:27b-cloud",
+                    text = stringResource(R.string.default_model),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -383,7 +365,7 @@ fun SettingsScreen(
             ) {
                 Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Buy me a coffee! ☕")
+                Text(stringResource(R.string.buy_me_coffee))
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -398,7 +380,7 @@ fun SettingsScreen(
             ) {
                 Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Recurring donation 💚")
+                Text(stringResource(R.string.recurring_donation))
             }
         }
     }

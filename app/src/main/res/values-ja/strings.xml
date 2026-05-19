@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ollama Talk</string>
+
+    <!-- Common -->
+    <string name="save">保存</string>
+    <string name="settings_saved">設定を保存しました</string>
+    <string name="cancel">キャンセル</string>
+    <string name="clear">クリア</string>
+    <string name="ok">OK</string>
+    <string name="got_it">わかりました</string>
+    <string name="more_info">詳細</string>
+    <string name="back">戻る</string>
+    <string name="settings">設定</string>
+    <string name="copy">コピー</string>
+    <string name="stop">停止</string>
+    <string name="send">送信</string>
+    <string name="speak">話す</string>
+    <string name="listen">聞く</string>
+    <string name="copied">コピーしました！</string>
+    <string name="notice">通知</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">Ollama Talk</string>
+    <string name="empty_chat_hint">メッセージを入力するか、話して開始してください</string>
+    <string name="type_message">メッセージを入力…</string>
+    <string name="thinking">考え中…</string>
+    <string name="image_attached">画像が添付されました</string>
+    <string name="attached_image">添付された画像</string>
+    <string name="has_image">画像あり</string>
+    <string name="attach_image">画像を添付</string>
+    <string name="remove_image">画像を削除</string>
+    <string name="searching_the_web">Webを検索中…</string>
+    <string name="analyzing_results">結果を分析中…</string>
+    <string name="clear_chat">チャットをクリア</string>
+    <string name="clear_chat_title">チャットをクリアしますか？</string>
+    <string name="clear_chat_message">すべてのメッセージが削除されます。</string>
+    <string name="copy_conversation">会話をコピー</string>
+    <string name="conversation_copied">会話をコピーしました！</string>
+    <string name="open_menu">メニューを開く</string>
+    <string name="stop_reading">読み上げを停止</string>
+    <string name="disable_auto_read">自動読み上げを無効にする</string>
+    <string name="enable_auto_read">自動読み上げを有効にする</string>
+
+    <!-- Conversations Drawer -->
+    <string name="conversations">会話</string>
+    <string name="new_conversation">新しい会話</string>
+    <string name="no_past_conversations">過去の会話はありません</string>
+    <string name="delete_conversation">会話を削除</string>
+
+    <!-- No API Key Overlay -->
+    <string name="no_api_key_title">APIキーが設定されていません</string>
+    <string name="no_api_key_message">設定に移動して、Ollama Cloud APIキーを入力してください。</string>
+    <string name="go_to_settings">設定に移動</string>
+    <string name="api_key_info_title">なぜAPIキーが必要ですか？</string>
+    <string name="api_key_info_body">Ollama Talkは、Ollama Cloud（ollama.com）に接続してAIモデルとチャットします。APIキーは、リクエストを認証し、サービスへの安全なアクセスを確保するために必要です。\n\nhttps://ollama.com/settings/keys にアクセスして、無料のAPIキーを取得できます。\n\nキーはこのデバイスにローカルに保存され、他の人と共有されることはありません。</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">設定</string>
+    <string name="api_key_label">APIキー</string>
+    <string name="api_key_hint">ここにAPIキーを貼り付けてください</string>
+    <string name="hide">隠す</string>
+    <string name="show">表示</string>
+    <string name="get_api_key_website">WebサイトでAPIキーを取得</string>
+    <string name="model_label">モデル</string>
+    <string name="loading_models">モデルを読み込み中…</string>
+    <string name="reload_models">モデルリストを再読み込み</string>
+    <string name="web_search">Web検索</string>
+    <string name="enable_web_search">Web検索を有効にする</string>
+    <string name="web_search_description">必要に応じてモデルがインターネットを検索できるようにします</string>
+    <string name="web_search_compat_title">Web検索の互換性</string>
+    <string name="web_search_compat_body">このモデルは、Web検索の検証済みリストに含まれていません。ツールはモデルに送信されますが、無視される可能性があります。それでも試しますか？</string>
+    <string name="try_anyway">とにかく試す</string>
+    <string name="keep_disabled">無効のままにする</string>
+    <string name="toggle_verify_compat">互換性を確認するにはオンにしてください</string>
+    <string name="checking_compatibility">互換性を確認中…</string>
+    <string name="model_supports_web_search">✓ このモデルはWeb検索をサポートしています</string>
+    <string name="model_not_verified_web_search">⚠ このモデルはWeb検索用に検証されていません</string>
+    <string name="tts_language">TTS言語</string>
+    <string name="default_model">デフォルトモデル: gemma3:27b-cloud</string>
+    <string name="buy_me_coffee">コーヒーをおごってください！☕</string>
+    <string name="recurring_donation">継続的な寄付 💚</string>
+
+    <!-- Errors / Toasts -->
+    <string name="error_no_api_key">設定でAPIキーを設定してください</string>
+    <string name="error_sending_message">メッセージの送信エラー</string>
+    <string name="error_unknown">不明なエラー</string>
+    <string name="error_mic_permission">音声入力を使用するにはマイクの許可が必要です</string>
+    <string name="error_tts_not_installed">%1$sのTTS言語データがインストールされていません</string>
+    <string name="error_loading_models">モデルの読み込みエラー: %1$s</string>
+    <string name="error_enter_api_key">APIキーを入力してください</string>
+    <string name="error_invalid_api_key">無効なAPIキーです。確認してもう一度お試しください。</string>
+    <string name="error_invalid_api_key_settings">無効なAPIキーです。設定でキーを確認してください。</string>
+    <string name="error_access_denied">アクセスが拒否されました</string>
+    <string name="error_access_denied_expired">アクセスが拒否されました。APIキーが無効または期限切れの可能性があります。</string>
+    <string name="error_rate_limit">リクエスト制限を超えました。しばらくしてからもう一度お試しください。</string>
+    <string name="error_server">サーバーエラー %1$d: %2$s</string>
+    <string name="error_http">エラー %1$d: %2$s</string>
+    <string name="error_web_search">Web検索エラー %1$d: %2$s</string>
+    <string name="error_network">ネットワークエラー</string>
+    <string name="error_audio">オーディオエラー</string>
+    <string name="error_no_match">理解できませんでした</string>
+    <string name="error_speech_timeout">音声認識がタイムアウトしました</string>
+    <string name="error_mic_not_granted">マイクの許可が付与されていません</string>
+    <string name="error_speech_recognition">音声認識エラー (%1$d)</string>
+    <string name="error_no_match_speech">音声を認識できませんでした</string>
+    <string name="error_tts_init">音声合成エンジンの初期化エラー</string>
+    <string name="error_no_text">読み上げるテキストがありません</string>
+    <string name="error_search_failed">検索を完了できませんでした。もう一度お試しください。</string>
+    <string name="no_results_found">結果が見つかりませんでした。</string>
+
+    <!-- Copy conversation prefixes -->
+    <string name="copy_prefix_user">--- ユーザー</string>
+    <string name="copy_prefix_assistant">--- Ollama (%1$s)</string>
+
+    <!-- Speech prompt -->
+    <string name="speech_prompt">メッセージを話してください</string>
+
+    <!-- Tool call messages -->
+    <string name="tool_searched">🔍 検索: \'%1$s\'</string>
+</resources>

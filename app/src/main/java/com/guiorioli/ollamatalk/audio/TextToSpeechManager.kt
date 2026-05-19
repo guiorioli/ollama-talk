@@ -3,9 +3,10 @@ package com.guiorioli.ollamatalk.audio
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import com.guiorioli.ollamatalk.R
 import java.util.Locale
 
-class TextToSpeechManager(context: Context) {
+class TextToSpeechManager(private val context: Context) {
 
     private var tts: TextToSpeech? = null
     private var isInitialized = false
@@ -26,7 +27,7 @@ class TextToSpeechManager(context: Context) {
             pendingText = null
         } else {
             isInitialized = false
-            onError?.invoke("Error initializing speech synthesizer")
+            onError?.invoke(context.getString(R.string.error_tts_init))
         }
     }
 
@@ -66,7 +67,7 @@ class TextToSpeechManager(context: Context) {
     fun speak(text: String, queueMode: Int = TextToSpeech.QUEUE_FLUSH) {
         val trimmed = text.trim()
         if (trimmed.isEmpty()) {
-            onError?.invoke("No text to read")
+            onError?.invoke(context.getString(R.string.error_no_text))
             return
         }
         if (!isInitialized) {

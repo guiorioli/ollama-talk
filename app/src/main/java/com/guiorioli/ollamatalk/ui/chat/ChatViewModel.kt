@@ -3,6 +3,7 @@ package com.guiorioli.ollamatalk.ui.chat
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.guiorioli.ollamatalk.R
 import com.guiorioli.ollamatalk.audio.SpeechRecognizerManager
 import com.guiorioli.ollamatalk.audio.StreamingTtsManager
 import com.guiorioli.ollamatalk.audio.TextToSpeechManager
@@ -143,7 +144,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
         val apiKey = prefs.apiKey
         if (apiKey.isBlank()) {
-            _state.value = _state.value.copy(error = "Set your API Key in Settings")
+            _state.value = _state.value.copy(error = getApplication<Application>().getString(R.string.error_no_api_key))
             return
         }
 
@@ -242,7 +243,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _state.value = _state.value.copy(
                     messages = updatedMessages,
                     isLoading = false,
-                    error = e.message ?: "Error sending message"
+                    error = e.message ?: getApplication<Application>().getString(R.string.error_sending_message)
                 )
                 currentChatJob = null
             }
@@ -280,7 +281,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     )
 
                     if (response.isFailure) {
-                        throw response.exceptionOrNull() ?: IOException("Unknown error")
+                        throw response.exceptionOrNull() ?: IOException(getApplication<Application>().getString(R.string.error_unknown))
                     }
 
                     val chatResponse = response.getOrThrow()
@@ -339,7 +340,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                                 val toolResultContent = if (searchResult.isSuccess) {
                                     formatSearchResults(searchResult.getOrThrow())
                                 } else {
-                                    "Error performing web search: ${searchResult.exceptionOrNull()?.message}"
+                                    getApplication<Application>().getString(R.string.error_sending_message) + ": ${searchResult.exceptionOrNull()?.message}"
                                 }
 
                                 apiMessages.add(
@@ -361,7 +362,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     val errorMsg = ChatUiMessage(
                         id = messageIdCounter++,
                         role = "assistant",
-                        content = "I couldn't complete the search. Please try again.",
+                        content = getApplication<Application>().getString(R.string.error_search_failed),
                         isLoading = false
                     )
                     _state.value = _state.value.copy(
@@ -440,7 +441,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         val lang = TtsLanguage.fromCode(prefs.ttsLanguage)
         val languageOk = textToSpeech.setLanguage(lang.locale)
         if (!languageOk) {
-            _state.value = _state.value.copy(error = "TTS language data not installed for ${lang.displayName}")
+            _state.value = _state.value.copy(error = getApplication<Application>().getString(R.string.error_tts_not_installed, lang.displayName))
             return
         }
         _state.value = _state.value.copy(isSpeaking = true, speakingMessageId = messageId)
@@ -458,7 +459,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onPermissionDenied() {
         _state.value = _state.value.copy(
-            error = "Microphone permission is required to use voice input"
+            error = getApplication<Application>().getString(R.string.error_mic_permission)
         )
     }
 

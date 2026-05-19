@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ollama Talk</string>
+
+    <!-- Common -->
+    <string name="save">保存</string>
+    <string name="settings_saved">设置已保存</string>
+    <string name="cancel">取消</string>
+    <string name="clear">清除</string>
+    <string name="ok">确定</string>
+    <string name="got_it">知道了</string>
+    <string name="more_info">更多信息</string>
+    <string name="back">返回</string>
+    <string name="settings">设置</string>
+    <string name="copy">复制</string>
+    <string name="stop">停止</string>
+    <string name="send">发送</string>
+    <string name="speak">说话</string>
+    <string name="listen">收听</string>
+    <string name="copied">已复制！</string>
+    <string name="notice">提示</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">Ollama Talk</string>
+    <string name="empty_chat_hint">输入或说出消息以开始</string>
+    <string name="type_message">输入消息…</string>
+    <string name="thinking">思考中…</string>
+    <string name="image_attached">图片已附加</string>
+    <string name="attached_image">已附加的图片</string>
+    <string name="has_image">有图片</string>
+    <string name="attach_image">附加图片</string>
+    <string name="remove_image">移除图片</string>
+    <string name="searching_the_web">正在搜索网络…</string>
+    <string name="analyzing_results">正在分析结果…</string>
+    <string name="clear_chat">清除聊天</string>
+    <string name="clear_chat_title">清除聊天？</string>
+    <string name="clear_chat_message">所有消息将被删除。</string>
+    <string name="copy_conversation">复制对话</string>
+    <string name="conversation_copied">对话已复制！</string>
+    <string name="open_menu">打开菜单</string>
+    <string name="stop_reading">停止朗读</string>
+    <string name="disable_auto_read">禁用自动朗读</string>
+    <string name="enable_auto_read">启用自动朗读</string>
+
+    <!-- Conversations Drawer -->
+    <string name="conversations">对话</string>
+    <string name="new_conversation">新对话</string>
+    <string name="no_past_conversations">没有过去的对话</string>
+    <string name="delete_conversation">删除对话</string>
+
+    <!-- No API Key Overlay -->
+    <string name="no_api_key_title">未设置 API 密钥</string>
+    <string name="no_api_key_message">前往设置并输入您的 Ollama Cloud API 密钥。</string>
+    <string name="go_to_settings">前往设置</string>
+    <string name="api_key_info_title">为什么我需要 API 密钥？</string>
+    <string name="api_key_info_body">Ollama Talk 连接到 Ollama Cloud（ollama.com）以与 AI 模型聊天。API 密钥用于验证您的请求并确保对服务的安全访问。\n\n您可以访问 https://ollama.com/settings/keys 获取免费 API 密钥。\n\n您的密钥存储在此设备本地，不会与任何其他人共享。</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">设置</string>
+    <string name="api_key_label">API 密钥</string>
+    <string name="api_key_hint">在此处粘贴您的 API 密钥</string>
+    <string name="hide">隐藏</string>
+    <string name="show">显示</string>
+    <string name="get_api_key_website">在网站上获取 API 密钥</string>
+    <string name="model_label">模型</string>
+    <string name="loading_models">正在加载模型…</string>
+    <string name="reload_models">重新加载模型列表</string>
+    <string name="web_search">网页搜索</string>
+    <string name="enable_web_search">启用网页搜索</string>
+    <string name="web_search_description">允许模型在需要时搜索互联网</string>
+    <string name="web_search_compat_title">网页搜索兼容性</string>
+    <string name="web_search_compat_body">此模型不在我们的网页搜索验证列表中。工具将发送给模型，但可能会被忽略。仍要尝试吗？</string>
+    <string name="try_anyway">仍要尝试</string>
+    <string name="keep_disabled">保持禁用</string>
+    <string name="toggle_verify_compat">切换以验证兼容性</string>
+    <string name="checking_compatibility">正在检查兼容性…</string>
+    <string name="model_supports_web_search">✓ 此模型支持网页搜索</string>
+    <string name="model_not_verified_web_search">⚠ 此模型未经验证用于网页搜索</string>
+    <string name="tts_language">TTS 语言</string>
+    <string name="default_model">默认模型：gemma3:27b-cloud</string>
+    <string name="buy_me_coffee">请我喝杯咖啡！☕</string>
+    <string name="recurring_donation">定期捐赠 💚</string>
+
+    <!-- Errors / Toasts -->
+    <string name="error_no_api_key">请在设置中设置您的 API 密钥</string>
+    <string name="error_sending_message">发送消息时出错</string>
+    <string name="error_unknown">未知错误</string>
+    <string name="error_mic_permission">使用语音输入需要麦克风权限</string>
+    <string name="error_tts_not_installed">未安装 %1$s 的 TTS 语言数据</string>
+    <string name="error_loading_models">加载模型时出错：%1$s</string>
+    <string name="error_enter_api_key">请输入 API 密钥</string>
+    <string name="error_invalid_api_key">API 密钥无效。请检查并重试。</string>
+    <string name="error_invalid_api_key_settings">API 密钥无效。请在设置中检查您的密钥。</string>
+    <string name="error_access_denied">访问被拒绝</string>
+    <string name="error_access_denied_expired">访问被拒绝。您的 API 密钥可能无效或已过期。</string>
+    <string name="error_rate_limit">超出请求限制。请稍等片刻后重试。</string>
+    <string name="error_server">服务器错误 %1$d：%2$s</string>
+    <string name="error_http">错误 %1$d：%2$s</string>
+    <string name="error_web_search">网页搜索错误 %1$d：%2$s</string>
+    <string name="error_network">网络错误</string>
+    <string name="error_audio">音频错误</string>
+    <string name="error_no_match">无法理解</string>
+    <string name="error_speech_timeout">语音超时</string>
+    <string name="error_mic_not_granted">未授予麦克风权限</string>
+    <string name="error_speech_recognition">语音识别错误（%1$d）</string>
+    <string name="error_no_match_speech">无法识别语音</string>
+    <string name="error_tts_init">初始化语音合成器时出错</string>
+    <string name="error_no_text">没有可朗读的文本</string>
+    <string name="error_search_failed">无法完成搜索。请重试。</string>
+    <string name="no_results_found">未找到结果。</string>
+
+    <!-- Copy conversation prefixes -->
+    <string name="copy_prefix_user">--- 用户</string>
+    <string name="copy_prefix_assistant">--- Ollama (%1$s)</string>
+
+    <!-- Speech prompt -->
+    <string name="speech_prompt">说出您的消息</string>
+
+    <!-- Tool call messages -->
+    <string name="tool_searched">🔍 已搜索：\'%1$s\'</string>
+</resources>

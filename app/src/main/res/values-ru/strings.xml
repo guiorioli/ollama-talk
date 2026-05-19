@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ollama Talk</string>
+
+    <!-- Common -->
+    <string name="save">Сохранить</string>
+    <string name="settings_saved">Настройки сохранены</string>
+    <string name="cancel">Отмена</string>
+    <string name="clear">Очистить</string>
+    <string name="ok">ОК</string>
+    <string name="got_it">Понятно</string>
+    <string name="more_info">Подробнее</string>
+    <string name="back">Назад</string>
+    <string name="settings">Настройки</string>
+    <string name="copy">Копировать</string>
+    <string name="stop">Стоп</string>
+    <string name="send">Отправить</string>
+    <string name="speak">Говорить</string>
+    <string name="listen">Слушать</string>
+    <string name="copied">Скопировано!</string>
+    <string name="notice">Уведомление</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">Ollama Talk</string>
+    <string name="empty_chat_hint">Введите сообщение или говорите, чтобы начать</string>
+    <string name="type_message">Введите сообщение…</string>
+    <string name="thinking">Думаю…</string>
+    <string name="image_attached">Изображение прикреплено</string>
+    <string name="attached_image">Прикрепленное изображение</string>
+    <string name="has_image">Есть изображение</string>
+    <string name="attach_image">Прикрепить изображение</string>
+    <string name="remove_image">Удалить изображение</string>
+    <string name="searching_the_web">Поиск в Интернете…</string>
+    <string name="analyzing_results">Анализ результатов…</string>
+    <string name="clear_chat">Очистить чат</string>
+    <string name="clear_chat_title">Очистить чат?</string>
+    <string name="clear_chat_message">Все сообщения будут удалены.</string>
+    <string name="copy_conversation">Копировать беседу</string>
+    <string name="conversation_copied">Беседа скопирована!</string>
+    <string name="open_menu">Открыть меню</string>
+    <string name="stop_reading">Остановить чтение</string>
+    <string name="disable_auto_read">Отключить автоматическое чтение</string>
+    <string name="enable_auto_read">Включить автоматическое чтение</string>
+
+    <!-- Conversations Drawer -->
+    <string name="conversations">Беседы</string>
+    <string name="new_conversation">Новая беседа</string>
+    <string name="no_past_conversations">Нет предыдущих бесед</string>
+    <string name="delete_conversation">Удалить беседу</string>
+
+    <!-- No API Key Overlay -->
+    <string name="no_api_key_title">Ключ API не установлен</string>
+    <string name="no_api_key_message">Перейдите в Настройки и введите ключ API Ollama Cloud.</string>
+    <string name="go_to_settings">Перейти в Настройки</string>
+    <string name="api_key_info_title">Зачем мне нужен ключ API?</string>
+    <string name="api_key_info_body">Ollama Talk подключается к Ollama Cloud (ollama.com) для общения с моделями ИИ. Ключ API необходим для аутентификации ваших запросов и обеспечения безопасного доступа к сервису.\n\nВы можете получить бесплатный ключ API, посетив https://ollama.com/settings/keys.\n\nВаш ключ хранится локально на этом устройстве и никогда не передается третьим лицам.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="api_key_label">Ключ API</string>
+    <string name="api_key_hint">Вставьте сюда свой ключ API</string>
+    <string name="hide">Скрыть</string>
+    <string name="show">Показать</string>
+    <string name="get_api_key_website">Получить ключ API на сайте</string>
+    <string name="model_label">Модель</string>
+    <string name="loading_models">Загрузка моделей…</string>
+    <string name="reload_models">Обновить список моделей</string>
+    <string name="web_search">Поиск в Интернете</string>
+    <string name="enable_web_search">Включить поиск в Интернете</string>
+    <string name="web_search_description">Позволяет модели искать в Интернете при необходимости</string>
+    <string name="web_search_compat_title">Совместимость поиска в Интернете</string>
+    <string name="web_search_compat_body">Эта модель отсутствует в нашем проверенном списке для поиска в Интернете. Инструмент будет отправлен модели, но она может его проигнорировать. Хотите попробовать?</string>
+    <string name="try_anyway">Все равно попробовать</string>
+    <string name="keep_disabled">Оставить отключенным</string>
+    <string name="toggle_verify_compat">Включите для проверки совместимости</string>
+    <string name="checking_compatibility">Проверка совместимости…</string>
+    <string name="model_supports_web_search">✓ Эта модель поддерживает поиск в Интернете</string>
+    <string name="model_not_verified_web_search">⚠ Эта модель не проверена для поиска в Интернете</string>
+    <string name="tts_language">Язык TTS</string>
+    <string name="default_model">Модель по умолчанию: gemma3:27b-cloud</string>
+    <string name="buy_me_coffee">Угостите меня кофе! ☕</string>
+    <string name="recurring_donation">Регулярное пожертвование 💚</string>
+
+    <!-- Errors / Toasts -->
+    <string name="error_no_api_key">Установите ключ API в Настройках</string>
+    <string name="error_sending_message">Ошибка отправки сообщения</string>
+    <string name="error_unknown">Неизвестная ошибка</string>
+    <string name="error_mic_permission">Для использования голосового ввода требуется разрешение микрофона</string>
+    <string name="error_tts_not_installed">Языковые данные TTS не установлены для %1$s</string>
+    <string name="error_loading_models">Ошибка загрузки моделей: %1$s</string>
+    <string name="error_enter_api_key">Введите ключ API</string>
+    <string name="error_invalid_api_key">Неверный ключ API. Проверьте и попробуйте снова.</string>
+    <string name="error_invalid_api_key_settings">Неверный ключ API. Проверьте свой ключ в Настройках.</string>
+    <string name="error_access_denied">Доступ запрещен</string>
+    <string name="error_access_denied_expired">Доступ запрещен. Ваш ключ API может быть недействительным или просроченным.</string>
+    <string name="error_rate_limit">Превышен лимит запросов. Подождите немного и попробуйте снова.</string>
+    <string name="error_server">Ошибка сервера %1$d: %2$s</string>
+    <string name="error_http">Ошибка %1$d: %2$s</string>
+    <string name="error_web_search">Ошибка поиска в Интернете %1$d: %2$s</string>
+    <string name="error_network">Ошибка сети</string>
+    <string name="error_audio">Ошибка аудио</string>
+    <string name="error_no_match">Не удалось распознать</string>
+    <string name="error_speech_timeout">Время речи истекло</string>
+    <string name="error_mic_not_granted">Разрешение на использование микрофона не предоставлено</string>
+    <string name="error_speech_recognition">Ошибка распознавания речи (%1$d)</string>
+    <string name="error_no_match_speech">Не удалось распознать речь</string>
+    <string name="error_tts_init">Ошибка инициализации синтезатора речи</string>
+    <string name="error_no_text">Нет текста для чтения</string>
+    <string name="error_search_failed">Мне не удалось завершить поиск. Попробуйте снова.</string>
+    <string name="no_results_found">Результатов не найдено.</string>
+
+    <!-- Copy conversation prefixes -->
+    <string name="copy_prefix_user">--- Пользователь</string>
+    <string name="copy_prefix_assistant">--- Ollama (%1$s)</string>
+
+    <!-- Speech prompt -->
+    <string name="speech_prompt">Произнесите ваше сообщение</string>
+
+    <!-- Tool call messages -->
+    <string name="tool_searched">🔍 Искали: \'%1$s\'</string>
+</resources>

@@ -79,8 +79,10 @@ import android.widget.Toast
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import androidx.compose.ui.text.input.ImeAction
+import com.guiorioli.ollamatalk.R
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.guiorioli.ollamatalk.data.local.ConversationIndexEntry
@@ -125,16 +127,16 @@ fun ChatScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear chat?") },
-            text = { Text("All messages will be removed.") },
+            title = { Text(stringResource(R.string.clear_chat_title)) },
+            text = { Text(stringResource(R.string.clear_chat_message)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearChat()
                     showClearDialog = false
-                }) { Text("Clear") }
+                }) { Text(stringResource(R.string.clear)) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -166,7 +168,7 @@ fun ChatScreen(
                 TopAppBar(
                     title = {
                         if (!state.isSpeaking) {
-                            Text("Ollama Talk")
+                            Text(stringResource(R.string.app_name))
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -181,7 +183,7 @@ fun ChatScreen(
                         }) {
                             Icon(
                                 Icons.Default.Menu,
-                                contentDescription = "Open menu"
+                                contentDescription = stringResource(R.string.open_menu)
                             )
                         }
                     },
@@ -190,7 +192,7 @@ fun ChatScreen(
                             IconButton(onClick = viewModel::stopSpeaking) {
                                 Icon(
                                     Icons.Default.Stop,
-                                    contentDescription = "Stop reading"
+                                    contentDescription = stringResource(R.string.stop_reading)
                                 )
                             }
                         }
@@ -209,18 +211,18 @@ fun ChatScreen(
                                 )
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 clipboard.setPrimaryClip(ClipData.newPlainText("conversation", text))
-                                Toast.makeText(context, "Conversation copied!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.conversation_copied), Toast.LENGTH_SHORT).show()
                             }) {
-                                Icon(Icons.Default.ContentCopy, contentDescription = "Copy conversation")
+                                Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.copy_conversation))
                             }
                             IconButton(onClick = { showClearDialog = true }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear chat")
+                                Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear_chat))
                             }
                         }
                         IconButton(onClick = { viewModel.toggleAutoSpeak() }) {
                             Icon(
                                 if (state.isAutoSpeak) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                                contentDescription = if (state.isAutoSpeak) "Disable auto-read" else "Enable auto-read",
+                                contentDescription = if (state.isAutoSpeak) stringResource(R.string.disable_auto_read) else stringResource(R.string.enable_auto_read),
                                 tint = if (state.isAutoSpeak)
                                     MaterialTheme.colorScheme.onPrimary
                                 else
@@ -228,7 +230,7 @@ fun ChatScreen(
                             )
                         }
                         IconButton(onClick = onOpenSettings) {
-                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                            Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                         }
                     }
                 )
@@ -292,7 +294,7 @@ fun ChatScreen(
                                         val plainText = stripMarkdown(message.content)
                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                         clipboard.setPrimaryClip(ClipData.newPlainText("response", plainText))
-                                        Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
                                     },
                                     onCancelLoading = if (message.isLoading) viewModel::cancelMessage else null
                                 )
@@ -324,7 +326,7 @@ fun ChatScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Searching the web...",
+                                    text = stringResource(R.string.searching_the_web),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -336,10 +338,10 @@ fun ChatScreen(
                 state.error?.let { error ->
                     AlertDialog(
                         onDismissRequest = viewModel::clearError,
-                        title = { Text("Notice") },
+                        title = { Text(stringResource(R.string.notice)) },
                         text = { Text(error) },
                         confirmButton = {
-                            TextButton(onClick = viewModel::clearError) { Text("OK") }
+                            TextButton(onClick = viewModel::clearError) { Text(stringResource(R.string.ok)) }
                         }
                     )
                 }
@@ -360,13 +362,13 @@ private fun EmptyChatHint() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Ollama Talk",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Type or speak a message to start",
+                text = stringResource(R.string.empty_chat_hint),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -381,36 +383,18 @@ private fun NoApiKeyOverlay(onOpenSettings: () -> Unit) {
     if (showInfoDialog) {
         AlertDialog(
             onDismissRequest = { showInfoDialog = false },
-            title = { Text("Why do I need an API Key?") },
+            title = { Text(stringResource(R.string.api_key_info_title)) },
             text = {
                 Column {
                     Text(
-                        "Ollama Talk connects to Ollama Cloud (ollama.com) to chat with AI models. " +
-                        "An API Key is required to authenticate your requests and ensure secure access to the service.",
+                        stringResource(R.string.api_key_info_body),
                         style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        "You can get your free API Key by visiting:",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "https://ollama.com/settings/keys",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        "Your key is stored locally on this device and is never shared with anyone else.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showInfoDialog = false }) {
-                    Text("Got it")
+                    Text(stringResource(R.string.got_it))
                 }
             }
         )
@@ -429,22 +413,22 @@ private fun NoApiKeyOverlay(onOpenSettings: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "API Key not set",
+                    text = stringResource(R.string.no_api_key_title),
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Go to Settings and enter your Ollama Cloud API Key.",
+                    text = stringResource(R.string.no_api_key_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = onOpenSettings) {
-                    Text("Go to Settings")
+                    Text(stringResource(R.string.go_to_settings))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(onClick = { showInfoDialog = true }) {
-                    Text("More info")
+                    Text(stringResource(R.string.more_info))
                 }
             }
         }
@@ -517,7 +501,7 @@ private fun MessageBubble(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Thinking…",
+                            text = stringResource(R.string.thinking),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -529,7 +513,7 @@ private fun MessageBubble(
                             ) {
                                 Icon(
                                     Icons.Default.Close,
-                                    contentDescription = "Cancel",
+                                    contentDescription = stringResource(R.string.cancel),
                                     modifier = Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -541,13 +525,13 @@ private fun MessageBubble(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Default.Image,
-                                contentDescription = "Has image",
+                                contentDescription = stringResource(R.string.has_image),
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Image attached",
+                                text = stringResource(R.string.image_attached),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -567,7 +551,7 @@ private fun MessageBubble(
                             ) {
                                 Icon(
                                     Icons.Filled.ContentCopy,
-                                    contentDescription = "Copy",
+                                    contentDescription = stringResource(R.string.copy),
                                     modifier = Modifier.size(18.dp),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -579,7 +563,7 @@ private fun MessageBubble(
                                 ) {
                                     Icon(
                                         if (isSpeaking) Icons.Default.Stop else Icons.Default.VolumeUp,
-                                        contentDescription = if (isSpeaking) "Stop" else "Listen",
+                                        contentDescription = if (isSpeaking) stringResource(R.string.stop) else stringResource(R.string.listen),
                                         modifier = Modifier.size(18.dp),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -605,7 +589,7 @@ private fun ConversationDrawerContent(
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
-            text = "Conversations",
+            text = stringResource(R.string.conversations),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(16.dp)
         )
@@ -617,12 +601,12 @@ private fun ConversationDrawerContent(
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("New conversation")
+            Text(stringResource(R.string.new_conversation))
         }
         HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
         if (conversations.isEmpty()) {
             Text(
-                text = "No past conversations",
+                text = stringResource(R.string.no_past_conversations),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(16.dp)
@@ -669,7 +653,7 @@ private fun ConversationDrawerContent(
                             ) {
                                 Icon(
                                     Icons.Default.Delete,
-                                    contentDescription = "Delete conversation",
+                                    contentDescription = stringResource(R.string.delete_conversation),
                                     modifier = Modifier.size(18.dp),
                                     tint = MaterialTheme.colorScheme.error
                                 )
@@ -715,7 +699,7 @@ private fun ChatInputBar(
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap.asImageBitmap(),
-                        contentDescription = "Attached image",
+                        contentDescription = stringResource(R.string.attached_image),
                         modifier = Modifier
                             .size(48.dp)
                             .padding(end = 8.dp),
@@ -728,7 +712,7 @@ private fun ChatInputBar(
                 ) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Remove image",
+                        contentDescription = stringResource(R.string.remove_image),
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -744,7 +728,7 @@ private fun ChatInputBar(
             ) {
                 Icon(
                     Icons.Default.Add,
-                    contentDescription = "Attach image",
+                    contentDescription = stringResource(R.string.attach_image),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -752,7 +736,7 @@ private fun ChatInputBar(
                 value = inputText,
                 onValueChange = onInputChanged,
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Type your message…") },
+                placeholder = { Text(stringResource(R.string.type_message)) },
                 enabled = !isLoading,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(onSend = { if (!isLoading) onSend() }),
@@ -771,14 +755,14 @@ private fun ChatInputBar(
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = "Cancel",
+                            contentDescription = stringResource(R.string.cancel),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
                 } else {
                     Icon(
                         Icons.Default.Mic,
-                        contentDescription = "Speak",
+                        contentDescription = stringResource(R.string.speak),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -789,7 +773,7 @@ private fun ChatInputBar(
             ) {
                 Icon(
                     Icons.Default.Send,
-                    contentDescription = "Send",
+                    contentDescription = stringResource(R.string.send),
                     tint = if ((inputText.isNotBlank() || pendingImageUri != null) && !isLoading)
                         MaterialTheme.colorScheme.primary
                     else

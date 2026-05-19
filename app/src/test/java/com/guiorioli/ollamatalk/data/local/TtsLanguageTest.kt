@@ -12,6 +12,15 @@ class TtsLanguageTest {
         assertEquals(TtsLanguage.ES_ES, TtsLanguage.fromCode("es-ES"))
         assertEquals(TtsLanguage.FR_FR, TtsLanguage.fromCode("fr-FR"))
         assertEquals(TtsLanguage.DE_DE, TtsLanguage.fromCode("de-DE"))
+        assertEquals(TtsLanguage.IT_IT, TtsLanguage.fromCode("it-IT"))
+        assertEquals(TtsLanguage.NL_NL, TtsLanguage.fromCode("nl-NL"))
+        assertEquals(TtsLanguage.JA_JP, TtsLanguage.fromCode("ja-JP"))
+        assertEquals(TtsLanguage.KO_KR, TtsLanguage.fromCode("ko-KR"))
+        assertEquals(TtsLanguage.RU_RU, TtsLanguage.fromCode("ru-RU"))
+        assertEquals(TtsLanguage.ZH_CN, TtsLanguage.fromCode("zh-CN"))
+        assertEquals(TtsLanguage.HI_IN, TtsLanguage.fromCode("hi-IN"))
+        assertEquals(TtsLanguage.AR_SA, TtsLanguage.fromCode("ar-SA"))
+        assertEquals(TtsLanguage.TR_TR, TtsLanguage.fromCode("tr-TR"))
     }
 
     @Test
@@ -39,11 +48,17 @@ class TtsLanguageTest {
         assertEquals("BR", TtsLanguage.PT_BR.locale.country)
         assertEquals("es", TtsLanguage.ES_ES.locale.language)
         assertEquals("ES", TtsLanguage.ES_ES.locale.country)
+        assertEquals("ja", TtsLanguage.JA_JP.locale.language)
+        assertEquals("JP", TtsLanguage.JA_JP.locale.country)
+        assertEquals("zh", TtsLanguage.ZH_CN.locale.language)
+        assertEquals("CN", TtsLanguage.ZH_CN.locale.country)
+        assertEquals("ar", TtsLanguage.AR_SA.locale.language)
+        assertEquals("SA", TtsLanguage.AR_SA.locale.country)
     }
 
     @Test
-    fun `ALL list contains 5 languages`() {
-        assertEquals(5, TtsLanguage.ALL.size)
+    fun `ALL list contains 14 languages`() {
+        assertEquals(14, TtsLanguage.ALL.size)
     }
 
     @Test

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ollama Talk</string>
+
+    <!-- Common -->
+    <string name="save">Opslaan</string>
+    <string name="settings_saved">Instellingen opgeslagen</string>
+    <string name="cancel">Annuleren</string>
+    <string name="clear">Wissen</string>
+    <string name="ok">OK</string>
+    <string name="got_it">Begrepen</string>
+    <string name="more_info">Meer info</string>
+    <string name="back">Terug</string>
+    <string name="settings">Instellingen</string>
+    <string name="copy">Kopiëren</string>
+    <string name="stop">Stop</string>
+    <string name="send">Verstuur</string>
+    <string name="speak">Spreek</string>
+    <string name="listen">Luister</string>
+    <string name="copied">Gekopieerd!</string>
+    <string name="notice">Melding</string>
+
+    <!-- Chat Screen -->
+    <string name="chat_title">Ollama Talk</string>
+    <string name="empty_chat_hint">Typ of spreek een bericht om te beginnen</string>
+    <string name="type_message">Typ je bericht…</string>
+    <string name="thinking">Aan het denken…</string>
+    <string name="image_attached">Afbeelding bijgevoegd</string>
+    <string name="attached_image">Bijgevoegde afbeelding</string>
+    <string name="has_image">Heeft afbeelding</string>
+    <string name="attach_image">Afbeelding bijvoegen</string>
+    <string name="remove_image">Afbeelding verwijderen</string>
+    <string name="searching_the_web">Zoeken op het web…</string>
+    <string name="analyzing_results">Resultaten analyseren…</string>
+    <string name="clear_chat">Chat wissen</string>
+    <string name="clear_chat_title">Chat wissen?</string>
+    <string name="clear_chat_message">Alle berichten worden verwijderd.</string>
+    <string name="copy_conversation">Gesprek kopiëren</string>
+    <string name="conversation_copied">Gesprek gekopieerd!</string>
+    <string name="open_menu">Menu openen</string>
+    <string name="stop_reading">Stoppen met voorlezen</string>
+    <string name="disable_auto_read">Automatisch voorlezen uitschakelen</string>
+    <string name="enable_auto_read">Automatisch voorlezen inschakelen</string>
+
+    <!-- Conversations Drawer -->
+    <string name="conversations">Gesprekken</string>
+    <string name="new_conversation">Nieuw gesprek</string>
+    <string name="no_past_conversations">Geen eerdere gesprekken</string>
+    <string name="delete_conversation">Gesprek verwijderen</string>
+
+    <!-- No API Key Overlay -->
+    <string name="no_api_key_title">API-sleutel niet ingesteld</string>
+    <string name="no_api_key_message">Ga naar Instellingen en voer je Ollama Cloud API-sleutel in.</string>
+    <string name="go_to_settings">Ga naar Instellingen</string>
+    <string name="api_key_info_title">Waarom heb ik een API-sleutel nodig?</string>
+    <string name="api_key_info_body">Ollama Talk verbindt met Ollama Cloud (ollama.com) om te chatten met AI-modellen. Een API-sleutel is vereist om je verzoeken te authenticeren en veilige toegang tot de dienst te garanderen.\n\nJe kunt je gratis API-sleutel verkrijgen door te bezoeken https://ollama.com/settings/keys.\n\nJe sleutel wordt lokaal op dit apparaat opgeslagen en wordt nooit met iemand anders gedeeld.</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Instellingen</string>
+    <string name="api_key_label">API-sleutel</string>
+    <string name="api_key_hint">Plak hier je API-sleutel</string>
+    <string name="hide">Verbergen</string>
+    <string name="show">Weergeven</string>
+    <string name="get_api_key_website">API-sleutel ophalen op website</string>
+    <string name="model_label">Model</string>
+    <string name="loading_models">Modellen laden…</string>
+    <string name="reload_models">Modellenlijst vernieuwen</string>
+    <string name="web_search">Webzoeken</string>
+    <string name="enable_web_search">Webzoeken inschakelen</string>
+    <string name="web_search_description">Hiermee kan het model het internet doorzoeken indien nodig</string>
+    <string name="web_search_compat_title">Webzoeken compatibiliteit</string>
+    <string name="web_search_compat_body">Dit model staat niet op onze geverifieerde lijst voor webzoeken. Het hulpmiddel wordt naar het model gestuurd, maar het kan worden genegeerd. Wil je het toch proberen?</string>
+    <string name="try_anyway">Toch proberen</string>
+    <string name="keep_disabled">Uitgeschakeld houden</string>
+    <string name="toggle_verify_compat">Schakel in om compatibiliteit te verifiëren</string>
+    <string name="checking_compatibility">Compatibiliteit controleren…</string>
+    <string name="model_supports_web_search">✓ Dit model ondersteunt webzoeken</string>
+    <string name="model_not_verified_web_search">⚠ Dit model is niet geverifieerd voor webzoeken</string>
+    <string name="tts_language">TTS-taal</string>
+    <string name="default_model">Standaardmodel: gemma3:27b-cloud</string>
+    <string name="buy_me_coffee">Trakteer me op koffie! ☕</string>
+    <string name="recurring_donation">Terugkerende donatie 💚</string>
+
+    <!-- Errors / Toasts -->
+    <string name="error_no_api_key">Stel je API-sleutel in bij Instellingen</string>
+    <string name="error_sending_message">Fout bij verzenden bericht</string>
+    <string name="error_unknown">Onbekende fout</string>
+    <string name="error_mic_permission">Microfoontoestemming is vereist voor spraakinvoer</string>
+    <string name="error_tts_not_installed">TTS-taalgegevens niet geïnstalleerd voor %1$s</string>
+    <string name="error_loading_models">Fout bij laden modellen: %1$s</string>
+    <string name="error_enter_api_key">Voer een API-sleutel in</string>
+    <string name="error_invalid_api_key">Ongeldige API-sleutel. Controleer en probeer opnieuw.</string>
+    <string name="error_invalid_api_key_settings">Ongeldige API-sleutel. Controleer je sleutel in Instellingen.</string>
+    <string name="error_access_denied">Toegang geweigerd</string>
+    <string name="error_access_denied_expired">Toegang geweigerd. Je API-sleutel kan ongeldig of verlopen zijn.</string>
+    <string name="error_rate_limit">Limiet overschreden. Wacht even en probeer opnieuw.</string>
+    <string name="error_server">Serverfout %1$d: %2$s</string>
+    <string name="error_http">Fout %1$d: %2$s</string>
+    <string name="error_web_search">Webzoekfout %1$d: %2$s</string>
+    <string name="error_network">Netwerkfout</string>
+    <string name="error_audio">Audiofout</string>
+    <string name="error_no_match">Niet begrepen</string>
+    <string name="error_speech_timeout">Spraak time-out</string>
+    <string name="error_mic_not_granted">Microfoontoestemming niet verleend</string>
+    <string name="error_speech_recognition">Spraakherkenningsfout (%1$d)</string>
+    <string name="error_no_match_speech">Spraak niet herkend</string>
+    <string name="error_tts_init">Fout bij initialiseren spraaksynthesizer</string>
+    <string name="error_no_text">Geen tekst om voor te lezen</string>
+    <string name="error_search_failed">Ik kon het zoeken niet voltooien. Probeer het opnieuw.</string>
+    <string name="no_results_found">Geen resultaten gevonden.</string>
+
+    <!-- Copy conversation prefixes -->
+    <string name="copy_prefix_user">--- Gebruiker</string>
+    <string name="copy_prefix_assistant">--- Ollama (%1$s)</string>
+
+    <!-- Speech prompt -->
+    <string name="speech_prompt">Spreek je bericht</string>
+
+    <!-- Tool call messages -->
+    <string name="tool_searched">🔍 Gezocht: \'%1$s\'</string>
+</resources>

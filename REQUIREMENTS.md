@@ -143,6 +143,18 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Tool call messages are displayed as discrete bubbles in the chat UI (e.g., "🔍 Searched: 'query'")
 - TTS does not read tool messages aloud
 
+### FR21 — TTS Language Expansion
+- Expand the TTS Language selector from 5 to 14 languages
+- New languages: Mandarin (zh-CN), Hindi (hi-IN), Arabic (ar-SA), Russian (ru-RU), Japanese (ja-JP), Korean (ko-KR), Italian (it-IT), Turkish (tr-TR), Dutch (nl-NL)
+- All languages are hardcoded in `TtsLanguage.kt` and used by both SpeechRecognizer and TextToSpeech
+- Fallback locale logic remains unchanged (`fromCode` defaults to English)
+
+### FR22 — UI Localization
+- Extract all user-facing strings from Composables (`ChatScreen`, `SettingsScreen`) into `res/values/strings.xml`
+- Create translated `strings.xml` files for: Italian (`values-it`), Russian (`values-ru`), Dutch (`values-nl`), Japanese (`values-ja`), Korean (`values-ko`), Mandarin Chinese (`values-zh-rCN`)
+- English serves as the universal fallback when the device locale does not match any translated language
+- The app UI follows the Android system locale automatically; TTS language selection remains independent (FR21)
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build

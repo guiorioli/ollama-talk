@@ -3,6 +3,7 @@ package com.guiorioli.ollamatalk.ui.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.guiorioli.ollamatalk.R
 import com.guiorioli.ollamatalk.data.api.ModelInfo
 import com.guiorioli.ollamatalk.data.api.OllamaApiService
 import com.guiorioli.ollamatalk.data.local.PreferencesManager
@@ -169,7 +170,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 onFailure = { error ->
                     _state.value = _state.value.copy(
                         isLoadingModels = false,
-                        error = "Error loading models: ${error.message}"
+                        error = getApplication<Application>().getString(R.string.error_loading_models, error.message ?: "")
                     )
                 }
             )
@@ -179,7 +180,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun save() {
         val apiKey = _state.value.apiKey.trim()
         if (apiKey.isBlank()) {
-            _state.value = _state.value.copy(error = "Enter an API Key")
+            _state.value = _state.value.copy(error = getApplication<Application>().getString(R.string.error_enter_api_key))
             return
         }
 
@@ -197,13 +198,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 prefs.webSearchEnabled = _state.value.webSearchEnabled
                 _state.value = _state.value.copy(
                     isSaving = false,
-                    successMessage = "Settings saved",
+                    successMessage = getApplication<Application>().getString(R.string.settings_saved),
                     isSaved = true
                 )
             } else {
                 _state.value = _state.value.copy(
                     isSaving = false,
-                    error = "Invalid API Key. Check and try again."
+                    error = getApplication<Application>().getString(R.string.error_invalid_api_key)
                 )
             }
         }

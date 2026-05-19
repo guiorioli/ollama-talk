@@ -6,8 +6,9 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import com.guiorioli.ollamatalk.R
 
-class SpeechRecognizerManager(context: Context) {
+class SpeechRecognizerManager(private val context: Context) {
 
     private val speechRecognizer: SpeechRecognizer =
         SpeechRecognizer.createSpeechRecognizer(context)
@@ -31,12 +32,12 @@ class SpeechRecognizerManager(context: Context) {
         override fun onError(error: Int) {
             onListeningChange?.invoke(false)
             val message = when (error) {
-                SpeechRecognizer.ERROR_NETWORK -> "Network error"
-                SpeechRecognizer.ERROR_AUDIO -> "Audio error"
-                SpeechRecognizer.ERROR_NO_MATCH -> "Could not understand"
-                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Speech timed out"
-                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Microphone permission not granted"
-                else -> "Speech recognition error ($error)"
+                SpeechRecognizer.ERROR_NETWORK -> context.getString(R.string.error_network)
+                SpeechRecognizer.ERROR_AUDIO -> context.getString(R.string.error_audio)
+                SpeechRecognizer.ERROR_NO_MATCH -> context.getString(R.string.error_no_match)
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> context.getString(R.string.error_speech_timeout)
+                SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> context.getString(R.string.error_mic_not_granted)
+                else -> context.getString(R.string.error_speech_recognition, error)
             }
             onError?.invoke(message)
         }
@@ -47,7 +48,7 @@ class SpeechRecognizerManager(context: Context) {
             if (!text.isNullOrBlank()) {
                 onResult?.invoke(text)
             } else {
-                onError?.invoke("Could not recognize speech")
+                onError?.invoke(context.getString(R.string.error_no_match_speech))
             }
         }
 
@@ -68,7 +69,7 @@ class SpeechRecognizerManager(context: Context) {
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your message")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.speech_prompt))
         }
         speechRecognizer.startListening(intent)
     }
