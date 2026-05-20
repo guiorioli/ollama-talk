@@ -77,8 +77,7 @@
     <string name="model_supports_web_search">✓ Эта модель поддерживает поиск в Интернете</string>
     <string name="model_not_verified_web_search">⚠ Эта модель не проверена для поиска в Интернете</string>
     <string name="tts_language">Язык TTS</string>
-    <string name="default_model">Модель по умолчанию: gemma3:27b-cloud</string>
-    <string name="buy_me_coffee">Угостите меня кофе! ☕</string>
+    <string name="buy_me_coffee">☕ Угостите меня кофе! ☕</string>
     <string name="recurring_donation">Регулярное пожертвование 💚</string>
 
     <!-- Errors / Toasts -->

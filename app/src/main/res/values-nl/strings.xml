@@ -77,8 +77,7 @@
     <string name="model_supports_web_search">✓ Dit model ondersteunt webzoeken</string>
     <string name="model_not_verified_web_search">⚠ Dit model is niet geverifieerd voor webzoeken</string>
     <string name="tts_language">TTS-taal</string>
-    <string name="default_model">Standaardmodel: gemma3:27b-cloud</string>
-    <string name="buy_me_coffee">Trakteer me op koffie! ☕</string>
+    <string name="buy_me_coffee">☕ Trakteer me op koffie! ☕</string>
     <string name="recurring_donation">Terugkerende donatie 💚</string>
 
     <!-- Errors / Toasts -->

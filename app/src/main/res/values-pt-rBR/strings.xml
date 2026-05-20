@@ -77,8 +77,7 @@
     <string name="model_supports_web_search">✓ Este modelo suporta pesquisa na web</string>
     <string name="model_not_verified_web_search">⚠ Este modelo não está verificado para pesquisa na web</string>
     <string name="tts_language">Idioma do TTS</string>
-    <string name="default_model">Modelo padrão: gemma3:27b-cloud</string>
-    <string name="buy_me_coffee">Me pague um café! ☕</string>
+    <string name="buy_me_coffee">☕ Me pague um café! ☕</string>
     <string name="recurring_donation">Doação recorrente 💚</string>
 
     <!-- Errors / Toasts -->

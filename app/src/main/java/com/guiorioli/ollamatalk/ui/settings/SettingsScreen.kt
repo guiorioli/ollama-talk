@@ -208,7 +208,7 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = stringResource(R.string.model_label),
@@ -239,7 +239,7 @@ fun SettingsScreen(
                 Text(stringResource(R.string.reload_models))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Web Search Toggle
             Text(
@@ -311,7 +311,7 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = stringResource(R.string.tts_language),
@@ -325,7 +325,7 @@ fun SettingsScreen(
                 onLanguageSelected = viewModel::onTtsLanguageChanged
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Button(
                 onClick = viewModel::save,
@@ -344,16 +344,7 @@ fun SettingsScreen(
                 Text(stringResource(R.string.save))
             }
 
-            if (!state.isSaved) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.default_model),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             OutlinedButton(
                 onClick = {
@@ -361,26 +352,13 @@ fun SettingsScreen(
                         .setData(Uri.parse("https://buy.stripe.com/6oU6oH6Xn8VR2YFatK83C00"))
                     context.startActivity(intent)
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
                 Icon(Icons.Default.OpenInBrowser, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(stringResource(R.string.buy_me_coffee))
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse("https://liberapay.com/gui.orioli/donate"))
-                    context.startActivity(intent)
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.recurring_donation))
             }
         }
     }

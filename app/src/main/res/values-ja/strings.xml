@@ -77,8 +77,7 @@
     <string name="model_supports_web_search">✓ このモデルはWeb検索をサポートしています</string>
     <string name="model_not_verified_web_search">⚠ このモデルはWeb検索用に検証されていません</string>
     <string name="tts_language">TTS言語</string>
-    <string name="default_model">デフォルトモデル: gemma3:27b-cloud</string>
-    <string name="buy_me_coffee">コーヒーをおごってください！☕</string>
+    <string name="buy_me_coffee">☕ コーヒーをおごってください！☕</string>
     <string name="recurring_donation">継続的な寄付 💚</string>
 
     <!-- Errors / Toasts -->

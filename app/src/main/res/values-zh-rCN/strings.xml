@@ -77,8 +77,7 @@
     <string name="model_supports_web_search">✓ 此模型支持网页搜索</string>
     <string name="model_not_verified_web_search">⚠ 此模型未经验证用于网页搜索</string>
     <string name="tts_language">TTS 语言</string>
-    <string name="default_model">默认模型：gemma3:27b-cloud</string>
-    <string name="buy_me_coffee">请我喝杯咖啡！☕</string>
+    <string name="buy_me_coffee">☕ 请我喝杯咖啡！☕</string>
     <string name="recurring_donation">定期捐赠 💚</string>
 
     <!-- Errors / Toasts -->
