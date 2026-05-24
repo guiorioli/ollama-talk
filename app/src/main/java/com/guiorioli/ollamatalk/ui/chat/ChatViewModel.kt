@@ -224,7 +224,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         }
                         _state.value = _state.value.copy(messages = updatedMessages)
                         if (_state.value.isAutoSpeak) {
-                            streamingTts.append(stripMarkdown(chunk))
+                            streamingTts.append(chunk)
                         }
                     }
 
@@ -316,7 +316,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                                     }
                                     _state.value = _state.value.copy(messages = updatedMessages)
                                     if (_state.value.isAutoSpeak) {
-                                        streamingTts.append(stripMarkdown(event.text))
+                                        streamingTts.append(event.text)
                                     }
                                 }
                                 is ChatStreamEvent.ToolCallDetected -> {

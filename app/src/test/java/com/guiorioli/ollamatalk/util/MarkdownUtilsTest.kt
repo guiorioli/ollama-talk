@@ -18,6 +18,12 @@ class MarkdownUtilsTest {
     }
 
     @Test
+    fun `stripMarkdown removes nested bold and italic`() {
+        assertEquals("texto", stripMarkdown("***texto***"))
+        assertEquals("texto italico texto", stripMarkdown("**texto *italico* texto**"))
+    }
+
+    @Test
     fun `stripMarkdown removes code blocks`() {
         val input = "Here is code:\n```\nval x = 1\n```\nAnd more text."
         val result = stripMarkdown(input)

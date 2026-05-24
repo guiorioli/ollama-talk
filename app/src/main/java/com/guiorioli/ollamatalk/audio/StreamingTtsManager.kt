@@ -1,6 +1,7 @@
 package com.guiorioli.ollamatalk.audio
 
 import android.speech.tts.TextToSpeech
+import com.guiorioli.ollamatalk.util.stripMarkdown
 
 /**
  * Gerencia TTS progressivo durante streaming de texto.
@@ -46,7 +47,7 @@ class StreamingTtsManager(private val ttsManager: TextToSpeechManager) {
         if (!isActive) return
         val remainder = sentenceBuffer.toString().trim()
         if (remainder.isNotEmpty()) {
-            ttsManager.speak(remainder, TextToSpeech.QUEUE_ADD)
+            ttsManager.speak(stripMarkdown(remainder), TextToSpeech.QUEUE_ADD)
         }
         sentenceBuffer.clear()
         onDone?.invoke()
@@ -83,7 +84,7 @@ class StreamingTtsManager(private val ttsManager: TextToSpeechManager) {
             val endIndex = match.range.last + 1
             val sentence = text.substring(lastCut, endIndex).trim()
             if (sentence.isNotEmpty()) {
-                ttsManager.speak(sentence, TextToSpeech.QUEUE_ADD)
+                ttsManager.speak(stripMarkdown(sentence), TextToSpeech.QUEUE_ADD)
             }
             lastCut = endIndex
         }

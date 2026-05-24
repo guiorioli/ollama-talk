@@ -21,9 +21,9 @@ fun stripMarkdown(markdown: String): String {
         .replace(Regex("`[^`]+`"), "")                        // inline code
         .replace(Regex("\\[([^\\]]+)\\]\\([^)]+\\)"), "$1") // links
         .replace(Regex("~~([^~]+)~~"), "$1")                // strikethrough
-        .replace(Regex("\\*\\*([^*]+)\\*\\*"), "$1")        // bold
+        .replace(Regex("\\*\\*([\\s\\S]*?)\\*\\*"), "$1")        // bold
         .replace(Regex("__([^_]+)__"), "$1")                // bold (alt)
-        .replace(Regex("\\*([^*]+)\\*"), "$1")              // italic
+        .replace(Regex("\\*([\\s\\S]*?)\\*"), "$1")              // italic
         .replace(Regex("_([^_]+)_"), "$1")                  // italic (alt)
         .replace(Regex("^#{1,6}\\s+", RegexOption.MULTILINE), "")                   // headers
         .replace(Regex("^>\\s+", RegexOption.MULTILINE), "")                        // blockquotes
