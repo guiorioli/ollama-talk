@@ -4,19 +4,11 @@ Android app for chatting with Ollama Cloud models, with voice support, conversat
 
 ## Download
 
-### Google Play Store (Closed Testing)
+### Google Play Store
 
-The app is currently in **closed testing** on the Google Play Store and should be publicly available on Play Store **soon**.
+The app is publicly available on the Google Play Store.
 
-### Pre-built APK
-
-The latest compiled APK is also available at:
-
-```
-dist/ollama-talk.apk
-```
-
-Just copy it to your Android device and install. No build required.
+[<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="60">](https://play.google.com/store/apps/details?id=com.guiorioli.ollamatalk&pli=1)
 
 ---
 
