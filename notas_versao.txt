@@ -1,0 +1,152 @@
+
+<pt-BR>
+- Chat com modelos da Ollama Cloud
+- Streaming de respostas em tempo real
+- Busca na web (tool calling)
+- Histórico de conversas
+- Entrada por voz (14 idiomas)
+- Respostas em áudio (TTS) com auto-leitura
+- Anexo de imagens
+- Renderização Markdown avançada
+- Copiar mensagens individuais ou conversa completa
+- Seleção de texto nas respostas
+- Cancelamento de respostas em andamento
+- Temas claro e escuro
+- Interface em 8 idiomas
+Novidades v2.9.0:
+- API level 36 (Android 16)
+- Gemma 4 31B
+</pt-BR>
+
+<en-US>
+- Chat with Ollama Cloud models
+- Real-time streaming responses
+- Web search (tool calling)
+- Conversation history
+- Voice input (14 languages)
+- Audio responses (TTS) with auto-speak
+- Image attachments
+- Advanced Markdown rendering
+- Copy individual messages or full conversation
+- Text selection in responses
+- Cancel in-progress responses
+- Light and dark themes
+- UI in 8 languages
+What's new in v2.9.0:
+- API level 36 (Android 16)
+- Default model: Gemma 4 31B Cloud
+</en-US>
+
+<it-IT>
+- Chat con modelli Ollama Cloud
+- Streaming di risposte in tempo reale
+- Ricerca web (tool calling)
+- Cronologia delle conversazioni
+- Input vocale (14 lingue)
+- Risposte audio (TTS) con lettura automatica
+- Allegati di immagini
+- Rendering Markdown avanzato
+- Copia singoli messaggi o conversazione completa
+- Selezione del testo nelle risposte
+- Annullamento delle risposte in corso
+- Temi chiaro e scuro
+- Interfaccia in 8 lingue
+Novità v2.9.0:
+- API level 36 (Android 16)
+-  Gemma 4 31B Cloud
+</it-IT>
+
+<ru-RU>
+- Чат с моделями Ollama Cloud
+- Потоковая передача ответов в реальном времени
+- Веб-поиск (tool calling)
+- История бесед
+- Голосовой ввод (14 языков)
+- Аудиоответы (TTS) с автозвучанием
+- Вложение изображений
+- Расширенный рендеринг Markdown
+- Копирование отдельных сообщений или всей беседы
+- Выделение текста в ответах
+- Отмена текущих ответов
+- Светлая и тёмная темы
+- Интерфейс на 8 языках
+Новое в v2.9.0:
+- API level 36 (Android 16)
+- Модель по умолчанию: Gemma 4 31B Cloud
+</ru-RU>
+
+<nl-NL>
+- Chat met Ollama Cloud modellen
+- Realtime streaming antwoorden
+- Webzoekopdracht (tool calling)
+- Geschiedenis van gesprekken
+- Spraakinvoer (14 talen)
+- Audio-antwoorden (TTS) met automatisch voorlezen
+- Afbeeldingen bijvoegen
+- Geavanceerde Markdown weergave
+- Individuele berichten of volledig gesprek kopiëren
+- Tekstselectie in antwoorden
+- Lopende antwoorden annuleren
+- Lichte en donkere thema's
+- UI in 8 talen
+Nieuw in v2.9.0:
+- API level 36 (Android 16)
+- Gemma 4 31B Cloud
+</nl-NL>
+
+<ja-JP>
+- Ollama Cloudモデルとのチャット
+- リアルタイムストリーミング応答
+- ウェブ検索（ツールコーリング）
+- 会話履歴
+- 音声入力（14言語）
+- 音声応答（TTS）と自動読み上げ
+- 画像添付
+- 高度なMarkdownレンダリング
+- 個別メッセージまたは会話全体のコピー
+- 応答のテキスト選択
+- 進行中の応答のキャンセル
+- ライト/ダークテーマ
+- 8言語のUI
+v2.9.0の新機能:
+- APIレベル36（Android 16）
+- デフォルトモデル: Gemma 4 31B Cloud
+</ja-JP>
+
+<ko-KR>
+- Ollama Cloud 모델과 채팅
+- 실시간 스트리밍 응답
+- 웹 검색 (툴 콜링)
+- 대화 기록
+- 음성 입력 (14개 언어)
+- 음성 응답 (TTS) 자동 읽기
+- 이미지 첨부
+- 고급 Markdown 렌더링
+- 개별 메시지 또는 전체 대화 복사
+- 응답 내 텍스트 선택
+- 진행 중인 응답 취소
+- 라이트/다크 테마
+- 8개 언어 UI
+v2.9.0 새소식:
+- API 레벨 36 (Android 16)
+- 기본 모델: Gemma 4 31B Cloud
+</ko-KR>
+
+<zh-CN>
+- 与 Ollama Cloud 模型聊天
+- 实时流式响应
+- 网页搜索（工具调用）
+- 对话历史
+- 语音输入（14种语言）
+- 语音回复（TTS）自动朗读
+- 图片附件
+- 高级 Markdown 渲染
+- 复制单条消息或完整对话
+- 响应文本选择
+- 取消进行中的响应
+- 浅色/深色主题
+- 8种语言界面
+v2.9.0 新功能:
+- API 级别 36（Android 16）
+- 默认模型：Gemma 4 31B Cloud
+</zh-CN>
