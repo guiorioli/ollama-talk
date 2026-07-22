@@ -44,8 +44,8 @@ The app is publicly available on the Google Play Store.
 | Settings Storage | SharedPreferences |
 | Conversation Storage | JSON files in app-private directory |
 | Min SDK | 26 |
-| Target SDK | 35 |
-| Compile SDK | 35 |
+| Target SDK | 36 |
+| Compile SDK | 36 |
 
 ## Project Structure
 

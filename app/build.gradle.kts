@@ -14,14 +14,14 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.guiorioli.ollamatalk"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.guiorioli.ollamatalk"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 30
-        versionName = "2.8.5"
+        targetSdk = 36
+        versionCode = 31
+        versionName = "2.9.0"
     }
 
     signingConfigs {
@@ -60,7 +60,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 
     packaging {

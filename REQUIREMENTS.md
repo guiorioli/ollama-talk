@@ -15,7 +15,7 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Send text messages to the Ollama Cloud API (`POST /api/chat`)
 - Display conversation history in chat format
 - Streaming disabled (`stream: false`) — waits for full response
-- Default model: `gemma3:27b-cloud`
+- Default model: `gemma4:31b-cloud`
 
 ### FR3 — Model selector
 - Dropdown/selector with available cloud models
@@ -48,7 +48,7 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - APK compiled locally with Android Studio
 - Kotlin + Jetpack Compose
 - Min SDK: 26 (Android 8.0)
-- Target SDK: 34 (Android 14)
+- Target SDK: 36 (Android 16)
 
 ### NFR2 — Minimal external dependencies
 - OkHttp for HTTP calls
@@ -161,7 +161,7 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - APK compiled locally with Android Studio
 - Kotlin + Jetpack Compose
 - Min SDK: 26 (Android 8.0)
-- Target SDK: 34 (Android 14)
+- Target SDK: 36 (Android 16)
 
 ### NFR2 — Minimal external dependencies
 - OkHttp for HTTP calls

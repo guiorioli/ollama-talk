@@ -61,6 +61,6 @@ class PreferencesManager(context: Context) {
         private const val KEY_TTS_LANG = "tts_language"
         private const val KEY_WEB_SEARCH_ENABLED = "web_search_enabled"
         private const val KEY_VERIFIED_MODELS_CACHE = "verified_models_cache"
-        const val DEFAULT_MODEL = "gemma3:27b-cloud"
+        const val DEFAULT_MODEL = "gemma4:31b-cloud"
     }
 }
