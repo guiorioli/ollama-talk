@@ -15,7 +15,7 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - Send text messages to the Ollama Cloud API (`POST /api/chat`)
 - Display conversation history in chat format
 - Streaming disabled (`stream: false`) — waits for full response
-- Default model: `gemma4:31b-cloud`
+- Default model: `gemma4:31b`
 
 ### FR3 — Model selector
 - Dropdown/selector with available cloud models

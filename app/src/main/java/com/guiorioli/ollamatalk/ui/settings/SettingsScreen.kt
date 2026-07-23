@@ -360,12 +360,15 @@ fun SettingsScreen(
 @Composable
 private fun DonateButton() {
     val context = LocalContext.current
-    val colors = listOf(
-        Color(0xFF1B1B1B),
-        Color(0xFFE53935),
-        Color(0xFFFB8C00),
-        Color(0xFFFDD835)
-    )
+    val baseColor = MaterialTheme.colorScheme.onSurface
+    val colors = remember(baseColor) {
+        listOf(
+            baseColor,
+            Color(0xFFE53935),
+            Color(0xFFFB8C00),
+            Color(0xFFFDD835)
+        )
+    }
     var colorIndex by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {

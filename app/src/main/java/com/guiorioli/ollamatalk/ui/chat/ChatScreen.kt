@@ -118,18 +118,20 @@ fun ChatScreen(
             val layoutInfo = listState.layoutInfo
             val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
             val total = layoutInfo.totalItemsCount
-            total == 0 || lastVisible >= total - 2
+            total <= 1 || lastVisible >= total - 1
         }
     }
+    var autoScroll by remember { mutableStateOf(true) }
     var showScrollToBottom by remember { mutableStateOf(false) }
 
     LaunchedEffect(isAtBottom) {
+        autoScroll = isAtBottom
         showScrollToBottom = !isAtBottom && state.messages.isNotEmpty()
     }
 
     LaunchedEffect(state.messages.lastIndex, state.messages.lastOrNull()?.content) {
-        if (state.messages.isNotEmpty() && isAtBottom) {
-            listState.animateScrollToItem(state.messages.lastIndex)
+        if (state.messages.isNotEmpty() && autoScroll) {
+            listState.scrollToItem(state.messages.size)
         }
     }
 
@@ -328,6 +330,9 @@ fun ChatScreen(
                                 )
                             }
                         }
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp))
+                        }
                     }
                 }
 
@@ -367,7 +372,7 @@ fun ChatScreen(
                     FloatingActionButton(
                         onClick = {
                             scope.launch {
-                                listState.animateScrollToItem(state.messages.lastIndex)
+                                listState.animateScrollToItem(state.messages.size)
                             }
                         },
                         modifier = Modifier
