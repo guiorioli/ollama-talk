@@ -13,9 +13,8 @@
 - Cancelamento de respostas em andamento
 - Temas claro e escuro
 - Interface em 8 idiomas
-Novidades v2.9.0:
-- API level 36 (Android 16)
-- Gemma 4 31B
+Novidades v2.9.1:
+- Auto-scroll inteligente
 </pt-BR>
 
 <en-US>
@@ -32,9 +31,8 @@ Novidades v2.9.0:
 - Cancel in-progress responses
 - Light and dark themes
 - UI in 8 languages
-What's new in v2.9.0:
-- API level 36 (Android 16)
-- Default model: Gemma 4 31B Cloud
+What's new in v2.9.1:
+- Smart auto-scroll
 </en-US>
 
 <it-IT>
@@ -51,9 +49,8 @@ What's new in v2.9.0:
 - Annullamento delle risposte in corso
 - Temi chiaro e scuro
 - Interfaccia in 8 lingue
-Novità v2.9.0:
-- API level 36 (Android 16)
--  Gemma 4 31B Cloud
+Novità v2.9.1:
+- Auto-scroll intelligente
 </it-IT>
 
 <ru-RU>
@@ -70,9 +67,8 @@ Novità v2.9.0:
 - Отмена текущих ответов
 - Светлая и тёмная темы
 - Интерфейс на 8 языках
-Новое в v2.9.0:
-- API level 36 (Android 16)
-- Модель по умолчанию: Gemma 4 31B Cloud
+Новое в v2.9.1:
+- Умная автопрокрутка
 </ru-RU>
 
 <nl-NL>
@@ -89,9 +85,8 @@ Novità v2.9.0:
 - Lopende antwoorden annuleren
 - Lichte en donkere thema's
 - UI in 8 talen
-Nieuw in v2.9.0:
-- API level 36 (Android 16)
-- Gemma 4 31B Cloud
+Nieuw in v2.9.1:
+- Slimme auto-scroll
 </nl-NL>
 
 <ja-JP>
@@ -108,9 +103,8 @@ Nieuw in v2.9.0:
 - 進行中の応答のキャンセル
 - ライト/ダークテーマ
 - 8言語のUI
-v2.9.0の新機能:
-- APIレベル36（Android 16）
-- デフォルトモデル: Gemma 4 31B Cloud
+v2.9.1の新機能:
+- スマートオートスクロール
 </ja-JP>
 
 <ko-KR>
@@ -127,9 +121,8 @@ v2.9.0の新機能:
 - 진행 중인 응답 취소
 - 라이트/다크 테마
 - 8개 언어 UI
-v2.9.0 새소식:
-- API 레벨 36 (Android 16)
-- 기본 모델: Gemma 4 31B Cloud
+v2.9.1 새소식:
+- 스마트 자동 스크롤
 </ko-KR>
 
 <zh-CN>
@@ -146,7 +139,6 @@ v2.9.0 새소식:
 - 取消进行中的响应
 - 浅色/深色主题
 - 8种语言界面
-v2.9.0 新功能:
-- API 级别 36（Android 16）
-- 默认模型：Gemma 4 31B Cloud
+v2.9.1 新功能:
+- 智能自动滚动
 </zh-CN>
