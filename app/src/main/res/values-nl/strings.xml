@@ -41,6 +41,7 @@
     <string name="stop_reading">Stoppen met voorlezen</string>
     <string name="disable_auto_read">Automatisch voorlezen uitschakelen</string>
     <string name="enable_auto_read">Automatisch voorlezen inschakelen</string>
+    <string name="scroll_to_bottom">Naar beneden scrollen</string>
 
     <!-- Conversations Drawer -->
     <string name="conversations">Gesprekken</string>

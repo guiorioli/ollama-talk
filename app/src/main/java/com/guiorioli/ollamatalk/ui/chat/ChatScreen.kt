@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.Mic
@@ -47,6 +48,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,11 +65,13 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import android.Manifest
@@ -105,10 +109,31 @@ fun ChatScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val listState = rememberLazyListState()
-    var showClearDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+
+    val isAtBottom by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val total = layoutInfo.totalItemsCount
+            total == 0 || lastVisible >= total - 2
+        }
+    }
+    var showScrollToBottom by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isAtBottom) {
+        showScrollToBottom = !isAtBottom && state.messages.isNotEmpty()
+    }
+
+    LaunchedEffect(state.messages.lastIndex, state.messages.lastOrNull()?.content) {
+        if (state.messages.isNotEmpty() && isAtBottom) {
+            listState.animateScrollToItem(state.messages.lastIndex)
+        }
+    }
+
+    var showClearDialog by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -335,6 +360,26 @@ fun ChatScreen(
                                 )
                             }
                         }
+                    }
+                }
+
+                if (showScrollToBottom) {
+                    FloatingActionButton(
+                        onClick = {
+                            scope.launch {
+                                listState.animateScrollToItem(state.messages.lastIndex)
+                            }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 16.dp, bottom = 16.dp),
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ) {
+                        Icon(
+                            Icons.Default.KeyboardArrowDown,
+                            contentDescription = stringResource(R.string.scroll_to_bottom)
+                        )
                     }
                 }
 

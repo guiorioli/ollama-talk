@@ -41,6 +41,7 @@
     <string name="stop_reading">読み上げを停止</string>
     <string name="disable_auto_read">自動読み上げを無効にする</string>
     <string name="enable_auto_read">自動読み上げを有効にする</string>
+    <string name="scroll_to_bottom">一番下までスクロール</string>
 
     <!-- Conversations Drawer -->
     <string name="conversations">会話</string>

@@ -41,6 +41,7 @@
     <string name="stop_reading">Ferma lettura</string>
     <string name="disable_auto_read">Disabilita lettura automatica</string>
     <string name="enable_auto_read">Abilita lettura automatica</string>
+    <string name="scroll_to_bottom">Scorri in fondo</string>
 
     <!-- Conversations Drawer -->
     <string name="conversations">Conversazioni</string>

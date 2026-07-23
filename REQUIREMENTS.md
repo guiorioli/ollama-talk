@@ -155,6 +155,18 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - English serves as the universal fallback when the device locale does not match any translated language
 - The app UI follows the Android system locale automatically; TTS language selection remains independent (FR21)
 
+### FR23 — Smart auto-scroll
+- During streaming, the chat auto-scrolls to the bottom only if the user is already at the bottom
+- If the user scrolls up to read, auto-scroll stops immediately
+- A floating action button (FAB) with a down-arrow appears when the user is not at the bottom
+- Tapping the FAB scrolls the chat back to the latest message
+- The FAB disappears once the user is back at the bottom
+
+### FR24 — Donate button visual highlight
+- The "Buy me a coffee!" button in Settings is ~20% larger than a standard button
+- The text color cycles through eye-catching colors (red → orange → yellow → black) every ~2.5s
+- Animation is subtle and looped continuously to draw attention without being intrusive
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build

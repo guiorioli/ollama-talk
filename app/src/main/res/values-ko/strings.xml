@@ -41,6 +41,7 @@
     <string name="stop_reading">읽기 중지</string>
     <string name="disable_auto_read">자동 읽기 비활성화</string>
     <string name="enable_auto_read">자동 읽기 활성화</string>
+    <string name="scroll_to_bottom">맨 아래로 스크롤</string>
 
     <!-- Conversations Drawer -->
     <string name="conversations">대화</string>
