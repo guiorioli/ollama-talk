@@ -13,8 +13,9 @@
 - Cancelamento de respostas em andamento
 - Temas claro e escuro
 - Interface em 8 idiomas
-Novidades v2.9.1:
+Novidades v2.9.2:
 - Auto-scroll inteligente
+- Entrada de voz melhorada
 </pt-BR>
 
 <en-US>
@@ -31,8 +32,9 @@ Novidades v2.9.1:
 - Cancel in-progress responses
 - Light and dark themes
 - UI in 8 languages
-What's new in v2.9.1:
+What's new in v2.9.2:
 - Smart auto-scroll
+- Improved voice input
 </en-US>
 
 <it-IT>
@@ -49,8 +51,9 @@ What's new in v2.9.1:
 - Annullamento delle risposte in corso
 - Temi chiaro e scuro
 - Interfaccia in 8 lingue
-Novità v2.9.1:
+Novità v2.9.2:
 - Auto-scroll intelligente
+- Input vocale migliorato
 </it-IT>
 
 <ru-RU>
@@ -67,8 +70,9 @@ Novità v2.9.1:
 - Отмена текущих ответов
 - Светлая и тёмная темы
 - Интерфейс на 8 языках
-Новое в v2.9.1:
+Новое в v2.9.2:
 - Умная автопрокрутка
+- Улучшенный голосовой ввод
 </ru-RU>
 
 <nl-NL>
@@ -85,8 +89,9 @@ Novità v2.9.1:
 - Lopende antwoorden annuleren
 - Lichte en donkere thema's
 - UI in 8 talen
-Nieuw in v2.9.1:
+Nieuw in v2.9.2:
 - Slimme auto-scroll
+- Verbeterde spraakinvoer
 </nl-NL>
 
 <ja-JP>
@@ -103,8 +108,9 @@ Nieuw in v2.9.1:
 - 進行中の応答のキャンセル
 - ライト/ダークテーマ
 - 8言語のUI
-v2.9.1の新機能:
+v2.9.2の新機能:
 - スマートオートスクロール
+- 音声入力の改善
 </ja-JP>
 
 <ko-KR>
@@ -121,8 +127,9 @@ v2.9.1の新機能:
 - 진행 중인 응답 취소
 - 라이트/다크 테마
 - 8개 언어 UI
-v2.9.1 새소식:
+v2.9.2 새소식:
 - 스마트 자동 스크롤
+- 음성 입력 개선
 </ko-KR>
 
 <zh-CN>
@@ -139,6 +146,7 @@ v2.9.1 새소식:
 - 取消进行中的响应
 - 浅色/深色主题
 - 8种语言界面
-v2.9.1 新功能:
+v2.9.2 新功能:
 - 智能自动滚动
+- 改进语音输入
 </zh-CN>
