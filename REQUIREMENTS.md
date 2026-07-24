@@ -167,6 +167,12 @@ Android app that connects to your Ollama Cloud account and enables chatting with
 - The text color cycles through eye-catching colors (red → orange → yellow → black) every ~2.5s
 - Animation is subtle and looped continuously to draw attention without being intrusive
 
+### FR25 — Hybrid voice input (press-and-hold + tap toggle)
+- **Press and hold** the mic button: starts listening immediately; stops and sends when the user releases
+- **Quick tap** (under 300ms): starts listening and switches to toggle mode (Stop icon appears); user taps Stop to finish and send
+- `onEndOfSpeech` is suppressed so the recognizer does not auto-stop on speech pauses
+- Hold threshold: 300ms distinguishes tap from hold
+
 ## Non-Functional Requirements
 
 ### NFR1 — Build

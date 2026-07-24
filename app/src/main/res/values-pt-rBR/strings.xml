@@ -16,6 +16,7 @@
     <string name="stop">Parar</string>
     <string name="send">Enviar</string>
     <string name="speak">Falar</string>
+    <string name="stop_recording">Parar gravação</string>
     <string name="listen">Ouvir</string>
     <string name="copied">Copiado!</string>
     <string name="notice">Aviso</string>

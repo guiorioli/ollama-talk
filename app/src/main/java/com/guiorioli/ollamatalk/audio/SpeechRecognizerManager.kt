@@ -25,9 +25,7 @@ class SpeechRecognizerManager(private val context: Context) {
         override fun onBeginningOfSpeech() = Unit
         override fun onRmsChanged(rmsdB: Float) = Unit
         override fun onBufferReceived(buffer: ByteArray?) = Unit
-        override fun onEndOfSpeech() {
-            onListeningChange?.invoke(false)
-        }
+        override fun onEndOfSpeech() = Unit
 
         override fun onError(error: Int) {
             onListeningChange?.invoke(false)

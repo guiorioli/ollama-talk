@@ -16,6 +16,7 @@
     <string name="stop">Stop</string>
     <string name="send">Send</string>
     <string name="speak">Speak</string>
+    <string name="stop_recording">Stop recording</string>
     <string name="listen">Listen</string>
     <string name="copied">Copied!</string>
     <string name="notice">Notice</string>

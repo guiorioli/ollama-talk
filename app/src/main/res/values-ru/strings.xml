@@ -16,6 +16,7 @@
     <string name="stop">Стоп</string>
     <string name="send">Отправить</string>
     <string name="speak">Говорить</string>
+    <string name="stop_recording">Остановить запись</string>
     <string name="listen">Слушать</string>
     <string name="copied">Скопировано!</string>
     <string name="notice">Уведомление</string>

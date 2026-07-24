@@ -16,6 +16,7 @@
     <string name="stop">Stop</string>
     <string name="send">Verstuur</string>
     <string name="speak">Spreek</string>
+    <string name="stop_recording">Stop opname</string>
     <string name="listen">Luister</string>
     <string name="copied">Gekopieerd!</string>
     <string name="notice">Melding</string>

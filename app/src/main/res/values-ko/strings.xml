@@ -16,6 +16,7 @@
     <string name="stop">중지</string>
     <string name="send">보내기</string>
     <string name="speak">말하기</string>
+    <string name="stop_recording">녹음 중지</string>
     <string name="listen">듣기</string>
     <string name="copied">복사되었습니다!</string>
     <string name="notice">알림</string>

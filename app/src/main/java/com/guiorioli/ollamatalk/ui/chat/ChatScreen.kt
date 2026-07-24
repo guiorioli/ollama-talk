@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -84,6 +85,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import dev.jeziellago.compose.markdowntext.MarkdownText
@@ -278,10 +280,8 @@ fun ChatScreen(
                         pendingImageUri = state.pendingImageUri,
                         onInputChanged = viewModel::onInputChanged,
                         onSend = viewModel::sendMessage,
-                        onMicClick = {
-                            if (state.isListening) {
-                                viewModel.cancelVoiceInput()
-                            } else if (ContextCompat.checkSelfPermission(
+                        onStartListening = {
+                            if (ContextCompat.checkSelfPermission(
                                     context, Manifest.permission.RECORD_AUDIO
                                 ) == PackageManager.PERMISSION_GRANTED
                             ) {
@@ -289,6 +289,9 @@ fun ChatScreen(
                             } else {
                                 permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                             }
+                        },
+                        onStopListening = {
+                            viewModel.stopListening()
                         },
                         onAttachClick = { imagePickerLauncher.launch("image/*") },
                         onClearImage = viewModel::clearPendingImage
@@ -736,10 +739,18 @@ private fun ChatInputBar(
     pendingImageUri: String?,
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit,
-    onMicClick: () -> Unit,
+    onStartListening: () -> Unit,
+    onStopListening: () -> Unit,
     onAttachClick: () -> Unit,
     onClearImage: () -> Unit
 ) {
+    var holdMode by remember { mutableStateOf(false) }
+    val HOLD_THRESHOLD_MS = 300
+
+    LaunchedEffect(isListening) {
+        if (!isListening) holdMode = false
+    }
+
     Column(modifier = Modifier.padding(8.dp)) {
         if (pendingImageUri != null) {
             val context = LocalContext.current
@@ -807,17 +818,51 @@ private fun ChatInputBar(
                 shape = RoundedCornerShape(24.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            IconButton(
-                onClick = onMicClick,
-                enabled = !isLoading
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .pointerInput(isLoading) {
+                        detectTapGestures(
+                            onPress = {
+                                if (!isLoading && !isListening) {
+                                    val pressStart = System.currentTimeMillis()
+                                    holdMode = true
+                                    onStartListening()
+                                    tryAwaitRelease()
+                                    val duration = System.currentTimeMillis() - pressStart
+                                    if (duration >= HOLD_THRESHOLD_MS) {
+                                        onStopListening()
+                                    } else {
+                                        holdMode = false
+                                    }
+                                }
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                if (isListening) {
+                if (isListening && !holdMode) {
+                    IconButton(
+                        onClick = { onStopListening() },
+                        enabled = true
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                Icons.Default.Stop,
+                                contentDescription = stringResource(R.string.stop_recording),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                } else if (isListening) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
-                            Icons.Default.Close,
-                            contentDescription = stringResource(R.string.cancel),
+                            Icons.Default.Mic,
+                            contentDescription = stringResource(R.string.speak),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -825,7 +870,10 @@ private fun ChatInputBar(
                     Icon(
                         Icons.Default.Mic,
                         contentDescription = stringResource(R.string.speak),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = if (isLoading)
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        else
+                            MaterialTheme.colorScheme.primary
                     )
                 }
             }

@@ -16,6 +16,7 @@
     <string name="stop">停止</string>
     <string name="send">发送</string>
     <string name="speak">说话</string>
+    <string name="stop_recording">停止录音</string>
     <string name="listen">收听</string>
     <string name="copied">已复制！</string>
     <string name="notice">提示</string>

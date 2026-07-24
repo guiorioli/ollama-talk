@@ -16,6 +16,7 @@
     <string name="stop">停止</string>
     <string name="send">送信</string>
     <string name="speak">話す</string>
+    <string name="stop_recording">録音を停止</string>
     <string name="listen">聞く</string>
     <string name="copied">コピーしました！</string>
     <string name="notice">通知</string>

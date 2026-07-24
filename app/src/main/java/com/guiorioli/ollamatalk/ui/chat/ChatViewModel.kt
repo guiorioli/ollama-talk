@@ -503,6 +503,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun stopListening() {
+        _state.value = _state.value.copy(isListening = false)
         speechRecognizer.stopListening()
     }
 
